@@ -60,7 +60,13 @@ public class IGClient
         priceResponse.EnsureSuccessStatusCode();
 
         var priceJson = await priceResponse.Content.ReadAsStringAsync();
-        var prices = JsonSerializer.Deserialize<PriceResponse>(priceJson);
+
+        JsonSerializerOptions options = new()
+        {
+            PropertyNameCaseInsensitive = true
+        };
+
+        var prices = JsonSerializer.Deserialize<PriceResponse>(priceJson, options);
 
         return prices.Prices;
     }

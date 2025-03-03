@@ -95,8 +95,7 @@
     function loadCharts(epic) {
         fetch(`/api/pricing/${epic}`, {
             method: 'GET',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(epic)
+            headers: { 'Content-Type': 'application/json' }
         })
             .then(response => response.json())
             .then(data => {
