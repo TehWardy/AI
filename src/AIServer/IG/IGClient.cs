@@ -68,7 +68,7 @@ public class IGClient
     /// <summary>
     /// Fetches the market navigation hierarchy starting from a root node (or top-level if nodeId is null).
     /// </summary>
-    public async Task<MarketNode[]> GetMarketHierarchyAsync(string nodeId = null)
+    public async Task<MarketNode> GetMarketHierarchyAsync(string nodeId = null)
     {
         igClient.DefaultRequestHeaders.Remove("Version");
         igClient.DefaultRequestHeaders.Add("Version", "1");
@@ -84,7 +84,7 @@ public class IGClient
             PropertyNameCaseInsensitive = true
         };
 
-        return JsonSerializer.Deserialize<MarketNode>(json, options).Nodes;
+        return JsonSerializer.Deserialize<MarketNode>(json, options);
     }
 
     /// <summary>

@@ -3,12 +3,12 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AIServer.Controllers.Api.IG;
 
-[Route("api/pricing")]
+[Route("api/pricing/")]
 public class PricingController(ILogger<PricingController> logger, IGClient igClient)
     : Controller
 {
-    [HttpPost]
-    public async Task<IActionResult> Post([FromBody] string epic)
+    [HttpGet("{epic}")]
+    public async Task<IActionResult> Post(string epic)
     {
         var result = new
         {

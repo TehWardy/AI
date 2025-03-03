@@ -13,66 +13,88 @@
     // Fetch and render the initial market hierarchy
     fetch('/api/markets')
         .then(response => response.json())
-        .then(data => renderTree(data, treeContainer))
+        .then(data => {
+            data.nodes.forEach(node => renderNode(node, treeContainer));
+        })
         .catch(error => console.error('Error loading market tree:', error));
 
     // Render tree nodes recursively
-    function renderTree(nodes, parentElement) {
-        nodes.forEach(node => {
-            const li = document.createElement('li');
-            const span = document.createElement('span');
-            span.textContent = node.name;
-            span.style.cursor = 'pointer';
-            li.appendChild(span);
-            parentElement.appendChild(li);
+    function renderNode(node, parentElement) {
 
-            // Handle expandable nodes
-            if (node.nodes?.length > 0 || node.markets?.length > 0) {
-                span.textContent = `[+] ${node.name}`;
-                span.onclick = () => toggleNode(node, li, span);
-            }
+        const li = document.createElement('li');
+        const span = document.createElement('span');
+        span.textContent = node.name;
+        span.style.cursor = 'pointer';
+        li.appendChild(span);
+        li.appendChild(document.createElement('ul'));
+        parentElement.appendChild(li);
 
-            // Handle market (epic) selection
-            if (node.markets?.length > 0) {
-                const ul = document.createElement('ul');
-                ul.style.display = 'none';
-                node.markets.forEach(market => {
-                    const marketLi = document.createElement('li');
-                    marketLi.textContent = `${market.instrumentName} (${market.epic})`;
-                    marketLi.style.cursor = 'pointer';
-                    marketLi.onclick = () => loadCharts(market.epic);
-                    ul.appendChild(marketLi);
-                });
-                li.appendChild(ul);
-            }
-        });
+        // Handle expandable nodes
+        span.textContent = `[+] ${node.name}`;
+        span.onclick = () => toggleNode(node, li, span);
+
+        // Handle market (epic) selection
+        if (node.markets?.length > 0) {
+            const ul = document.createElement('ul');
+            ul.style.display = 'none';
+
+            node.markets.forEach(market => {
+                const marketLi = document.createElement('li');
+                marketLi.textContent = `${market.instrumentName} (${market.epic})`;
+                marketLi.style.cursor = 'pointer';
+                marketLi.onclick = () => loadCharts(market.epic);
+                ul.appendChild(marketLi);
+            });
+
+            li.appendChild(ul);
+        }
     }
 
     // Toggle node expansion
     function toggleNode(node, li, span) {
+
         const ul = li.querySelector('ul');
-        if (ul && ul.children.length > 0) {
-            // Already loaded, just toggle visibility
-            ul.style.display = ul.style.display === 'none' ? 'block' : 'none';
-            span.textContent = ul.style.display === 'none' ? `[+] ${node.name}` : `[-] ${node.name}`;
-        } else if (node.id) {
-            // Fetch child nodes
-            fetch(`/api/marketnavigation/${node.id}`)
+
+        if (ul.style.display != "block") {
+            fetch(`/api/markets/${node.id}`)
                 .then(response => response.json())
-                .then(childData => {
-                    const newUl = document.createElement('ul');
-                    renderTree([childData], newUl);
-                    li.appendChild(newUl);
+                .then(data => {
+
+                    if (data.nodes && data.nodes.length > 0) {
+                        data.nodes.forEach(node => renderNode(node, ul));
+                    }
+
+                    if (data.markets && data.markets.length > 0) {
+                        renderMarkets(data.markets, ul);
+                    }
+
+                    ul.style.display = 'block';
                     span.textContent = `[-] ${node.name}`;
                 })
-                .catch(error => console.error('Error loading node:', error));
+                .catch(error => console.error('Error loading market tree:', error));
         }
+        else {
+            ul.style.display = 'none';
+            span.textContent = `[+] ${node.name}`;
+        }
+    }
+
+    function renderMarkets(markets, ul) {
+        markets.forEach(market => {
+            const li = document.createElement('li');
+            const span = document.createElement('span');
+            span.textContent = market.epic;
+            span.style.cursor = 'pointer';
+            li.appendChild(span);
+            span.onclick = () => loadCharts(market.epic);
+            ul.appendChild(li);
+        });
     }
 
     // Load and render charts for selected epic
     function loadCharts(epic) {
-        fetch('/api/pricing', {
-            method: 'POST',
+        fetch(`/api/pricing/${epic}`, {
+            method: 'GET',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(epic)
         })

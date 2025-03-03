@@ -19,7 +19,7 @@ public class MarketController : Controller
     public async Task<IActionResult> Get()
     {
         var root = await _igClient.GetMarketHierarchyAsync();
-        return Ok(new[] { root }); // Wrap in array for tree
+        return Ok(root); 
     }
 
     [HttpGet("{nodeId}")]
