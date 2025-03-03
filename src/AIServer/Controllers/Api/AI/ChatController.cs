@@ -1,7 +1,7 @@
 ﻿using AIServer.AI;
 using Microsoft.AspNetCore.Mvc;
 
-namespace AIServer.Controllers.Api;
+namespace AIServer.Controllers.Api.AI;
 
 [Route("api/chat")]
 public class ChatController(ILogger<HomeController> logger, AIChatClient chatClient)
