@@ -5,7 +5,10 @@ var config = new ConfigurationBuilder()
     .AddEnvironmentVariables()
     .Build();
 
-AIModelHost aiHost = new(config.GetValue<string>("AI.Model"));
+AIModelHost aiHost = new(
+    config.GetValue<string>("AI.OllamaExe"),
+    config.GetValue<string>("AI.Model"));
+
 aiHost.Start();
 
 var builder = WebApplication

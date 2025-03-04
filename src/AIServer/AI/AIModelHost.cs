@@ -7,14 +7,14 @@ public class AIModelHost
     Process ollamaProcess;
     readonly ProcessStartInfo ollamaArgs;
 
-    public AIModelHost(string model)
+    public AIModelHost(string ollamaExePath, string model)
     {
         //Options: 1.5b,7b,8b,14b,32b,70b,671b
-        EnsureModelIsDownloaded(model);
+        EnsureModelIsDownloaded(ollamaExePath, model);
 
         ollamaArgs = new ProcessStartInfo
         {
-            FileName = "ollama", // Assumes ollama is in PATH or project directory
+            FileName = ollamaExePath, // Assumes ollama is in PATH or project directory
             Arguments = "serve",
             UseShellExecute = false,
             RedirectStandardOutput = true,
@@ -23,14 +23,14 @@ public class AIModelHost
         };
     }
 
-    public void EnsureModelIsDownloaded(string model)
+    public void EnsureModelIsDownloaded(string ollamaExePath, string model)
     {
         Console.WriteLine($"[Model Prep Output] Downloading model {model} ...");
         var pullProcess = new Process
         {
             StartInfo = new ProcessStartInfo
             {
-                FileName = "ollama",
+                FileName = ollamaExePath,
                 Arguments = "pull " + model,
                 UseShellExecute = false,
                 RedirectStandardOutput = true,

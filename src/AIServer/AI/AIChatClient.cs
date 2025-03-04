@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using System.Xml.Linq;
 using AIServer.AI.Models;
 
 namespace AIServer.AI;
@@ -55,6 +54,8 @@ public class AIChatClient(string hostingServerUrl, string model)
         thoughtAndReply[0] = thoughtAndReply[0]
             .TrimStart("<think>".ToArray());
 
-        return thoughtAndReply;
+        return thoughtAndReply
+            .Select(i => i.Trim())
+            .ToArray();
     }
 }
