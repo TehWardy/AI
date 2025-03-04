@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using System.Xml.Linq;
 using AIServer.AI.Models;
 
 namespace AIServer.AI;
@@ -12,7 +13,7 @@ public class AIChatClient(string hostingServerUrl, string model)
         BaseAddress = new Uri(hostingServerUrl) 
     };
 
-    public async Task<string[]> SendMessageAsync(string message)
+    public async Task<dynamic> SendMessageAsync(string message)
     {
         history.Add(new MessageData { Role = "user", Content = message });
 
@@ -48,14 +49,16 @@ public class AIChatClient(string hostingServerUrl, string model)
         var responseParts = parsedResponse
             .Select(i => i.Message.Content);
 
-        var thoughtAndReply = string.Join("", responseParts)
-            .Split("</think>");
+        var thoughtAndReplyXML = $"<message>{string.Join("", responseParts)}</message>";
+        XElement root = XElement.Parse(thoughtAndReplyXML);
+        var thought = root.Element("think").Value;
+        root.Element("think").Remove();
+        var reply = root.Value;
 
-        thoughtAndReply[0] = thoughtAndReply[0]
-            .TrimStart("<think>".ToArray());
-
-        return thoughtAndReply
-            .Select(i => i.Trim())
-            .ToArray();
+        return new 
+        {
+            thought = root.Element("think").Value,
+            reply = reply
+        };
     }
 }

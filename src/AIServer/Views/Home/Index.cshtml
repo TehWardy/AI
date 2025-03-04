@@ -34,7 +34,7 @@
         addMessage("You", message);
 
         let reply = await sendMessageToServer(message);
-        addMessage("AI", reply[0], reply[1]);
+        addMessage("AI", reply[1], reply[0]);
     }
 
     async function sendMessageToServer(message) {
