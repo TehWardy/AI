@@ -33,8 +33,12 @@
 
         addMessage("You", message);
 
+        disableChatInput();
         let reply = await sendMessageToServer(message);
-        addMessage("AI", reply[1], reply[0]);
+        enableChatInput();
+        clearChatInput();
+
+        addMessage("AI", reply.thought, reply.reply);
     }
 
     async function sendMessageToServer(message) {
@@ -71,5 +75,17 @@
 
         chatDisplay.appendChild(msg);
         chatDisplay.scrollTop = chatDisplay.scrollHeight;
+    }
+
+    function clearChatInput() {
+        messageInput.value = '';
+    }
+
+    function disableChatInput() {
+        messageInput.disabled = true;
+    }
+
+    function enableChatInput() {
+        messageInput.disabled = false;
     }
 </script>
