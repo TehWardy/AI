@@ -85,8 +85,17 @@
             const span = document.createElement('span');
             span.textContent = market.epic;
             span.style.cursor = 'pointer';
+            span.classList.add("market");
+
             li.appendChild(span);
-            span.onclick = () => loadCharts(market.epic);
+            span.onclick = () => {
+                document.querySelectorAll('span.market')
+                    .forEach(span => span.classList.remove('selected'));
+
+                span.classList.add("selected");
+                loadCharts(market.epic);
+            };
+
             ul.appendChild(li);
         });
     }
