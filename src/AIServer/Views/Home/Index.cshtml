@@ -34,11 +34,11 @@
         addMessage("You", message);
 
         disableChatInput();
-        let reply = await sendMessageToServer(message);
+        let response = await sendMessageToServer(message);
         enableChatInput();
         clearChatInput();
 
-        addMessage("AI", reply.thought, reply.reply);
+        addMessage("AI", response.reply, response.thought);
     }
 
     async function sendMessageToServer(message) {

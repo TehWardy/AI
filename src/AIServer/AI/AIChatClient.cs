@@ -55,10 +55,6 @@ public class AIChatClient(string hostingServerUrl, string model)
         root.Element("think").Remove();
         var reply = root.Value;
 
-        return new 
-        {
-            thought = root.Element("think").Value,
-            reply = reply
-        };
+        return new { thought, reply };
     }
 }
