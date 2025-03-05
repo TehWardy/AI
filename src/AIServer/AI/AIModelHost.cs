@@ -15,7 +15,7 @@ public class AIModelHost
         ollamaArgs = new ProcessStartInfo
         {
             FileName = ollamaExePath, // Assumes ollama is in PATH or project directory
-            Arguments = "serve",
+            Arguments = "serve --gpu",
             UseShellExecute = false,
             RedirectStandardOutput = true,
             RedirectStandardError = true,

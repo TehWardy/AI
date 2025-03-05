@@ -10,7 +10,8 @@ public class AIChatClient(string hostingServerUrl, string model)
 
     private readonly HttpClient client = new() 
     { 
-        BaseAddress = new Uri(hostingServerUrl) 
+        BaseAddress = new Uri(hostingServerUrl), 
+        Timeout = TimeSpan.FromMinutes(10)
     };
 
     public async Task<dynamic> SendMessageAsync(string message)
@@ -49,12 +50,19 @@ public class AIChatClient(string hostingServerUrl, string model)
         var responseParts = parsedResponse
             .Select(i => i.Message.Content);
 
-        var thoughtAndReplyXML = $"<message>{string.Join("", responseParts)}</message>";
-        XElement root = XElement.Parse(thoughtAndReplyXML);
-        var thought = root.Element("think").Value;
-        root.Element("think").Remove();
-        var reply = root.Value;
+        var thoughtAndReply = string.Join("", responseParts)
+            .Split("</think>");
 
-        return new { thought, reply };
+        return thoughtAndReply.Length > 1 
+            ? new 
+            { 
+                thought = thoughtAndReply[0].TrimStart("<think>".ToArray()).Trim(), 
+                reply = thoughtAndReply[1].Trim()
+            }
+            : new
+            {
+                thought = string.Empty,
+                reply = thoughtAndReply[1].Trim()
+            };
     }
 }
