@@ -1,9 +1,8 @@
-﻿using AIServer.AI;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace AIServer.Controllers;
 
-public class HomeController(ILogger<HomeController> logger, AIChatClient chatClient) 
+public class HomeController() 
     : Controller
 {
     [HttpGet("")]

@@ -10,8 +10,12 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "AI.OllamaExe": "C:\\Users\\ward_\\AppData\\Local\\Programs\\Ollama\\ollama.exe",
-        "AI.Model": "deepseek-r1:8b",
-        "AI.ServerUrl": "http://localhost:11434/"
+        "AI.Model": "deepseek-r1:14b",
+        "AI.ServerUrl": "http://localhost:11434/",
+        "IG.Host": "https://api.ig.com/gateway/deal/",
+        "IG.ApiKey": "a6d71518e13df24638e79b2cf08e50015c728c59",
+        "IG.Username": "TehWardy",
+        "IG.Password": "8z_sN*98ET7CtrU"
       }
     }
   }

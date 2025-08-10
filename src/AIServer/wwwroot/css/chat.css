@@ -6,170 +6,122 @@
     color: #E0E0E0;
 }
 
-/* Customize Scrollbars */
-::-webkit-scrollbar {
-    width: 12px; 
-    height: 12px; 
-}
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-track { background: #2D2D2D; border-radius: 10px; }
+::-webkit-scrollbar-thumb { background: #1E88E5; border-radius: 10px; border: 2px solid #2D2D2D; }
+::-webkit-scrollbar-thumb:hover { background: #42A5F5; }
+* { scrollbar-width: thin; scrollbar-color: #1E88E5 #2D2D2D; }
 
-::-webkit-scrollbar-track {
-    background: #2D2D2D; 
-    border-radius: 10px; 
-}
-
-::-webkit-scrollbar-thumb {
-    background: #1E88E5; 
-    border-radius: 10px; 
-    border: 2px solid #2D2D2D; 
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: #42A5F5; 
-}
-
-* {
-    scrollbar-width: thin; 
-    scrollbar-color: #1E88E5 #2D2D2D;
-}
-
-/* Conversation History */
-#chat-container {
-    max-width: 1400px; /* Maintain or remove for full width */
+.container {
+    max-width: 1800px;
     margin: 0 auto;
     background: #2D2D2D;
     padding: 20px;
-    border-radius: 8px;
-    box-shadow: 4px 4px 8px rgba(0,0,0,0.1);
-    height: 85vh;
+    border-radius: 12px;
+    box-shadow: 4px 4px 8px rgba(0,0,0,0.25);
+    height: 92vh;
     display: flex;
     flex-direction: column;
+    gap: 12px;
 }
 
 #chat-display {
     flex: 1;
     overflow-y: auto;
-    margin-bottom: 20px;
-    white-space: pre-wrap;
+    margin: 0;
+    padding: 4px;
 }
 
 #chat-display > .message {
     display: flex;
-    flex-direction: row;
-    align-items: flex-start; /* Aligns label and content to the top */
-    justify-content: flex-start; /* Ensures horizontal alignment starts from left */
-    padding: 10px 0;
-    /* Reintroduce a default max-width for messages, but allow growth */
-    max-width: 90%; /* Limits to 90% of chat-display, but can grow if needed */
+    padding: 6px 0;
+    margin-bottom: 40px;
 }
 
-#chat-display > .message.AI > .content {
-    justify-content: flex-end; /* Right-align AI messages */
-    align-items: flex-end; /* Align AI content to the bottom if needed (optional) */
-}
-
-#chat-display > .message > label {
-    width: 150px;
-    min-width: 150px;
+#chat-display > .message label {
+    display: block;
+    font-size: 0.8rem;
     font-weight: bold;
-    margin-right: 10px; /* Adds spacing between label and content */
+    margin-bottom: 4px;
+    opacity: 0.75;
 }
+
+#chat-display > .message.Assistant label {
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
+#chat-display > .message.user {
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+#chat-display > .message.Assistant {
+    flex-direction: column;
+    align-items: flex-start;
+}
+
 
 #chat-display > .message > .content {
-    flex: 1; /* Allows content to grow and take available space */
     display: flex;
-    flex-direction: column; /* Stacks thought and reply vertically */
-    align-items: flex-start; /* Aligns thought and reply to the top within content */
-    min-width: 0; /* Prevents flex items from overflowing due to long content */
+    flex-direction: column;
+    gap: 8px;
+    max-width: 70%;
 }
 
-/* Thought Bubble Styling for AI (Left-aligned with tail) */
-#chat-display > .message.AI > .content > .thought {
-    position: relative; /* Required for pseudo-elements */
-    background-color: #3D3D3D; /* Matches secondary background from Grok theme */
-    color: #E0E0E0; /* Primary text color */
-    padding: 15px 20px;
-    border-radius: 8px; /* Rounded corners for bubble */
-    /* Set a default max-width, but allow growth up to 90% */
-    max-width: 90%; /* Allows up to 90% width for AI messages */
-    flex-grow: 1; /* Allows the thought to grow if content requires it */
-    margin-bottom: 10px; /* Space between thought and reply */
-    box-shadow: 0 2px 5px #111; /* Subtle shadow for depth */
-    overflow-y: auto; /* Allow scrolling if content overflows */
-    width: auto; /* Allows dynamic sizing based on content and flex properties */
-    margin-left: auto; /* Pushes to the right for right-alignment */
+#chat-display > .message.user {
+    justify-content: flex-start;
+}
+
+#chat-display > .message.user > .content > .reply {
+    background-color: #4D4D4D;
+    color: #E0E0E0;
+    padding: 12px 14px;
+    border-radius: 16px 16px 16px 6px;
+    box-shadow: 0 2px 5px #111;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+#chat-display > .message.Assistant {
+    justify-content: flex-start;
+}
+
+#chat-display > .message.Assistant > .content {
+    align-items: flex-start;
+}
+
+#chat-display > .message.Assistant > .content > .thought {
+    color: #E0E0E0;
+    padding: 12px 14px;
+    overflow-y: auto;
     max-height: 300px;
-    overflow-x: hidden;
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
 
-#chat-display > .message > .content > .thought h2 { 
-    display: block;
+#chat-display > .message.Assistant > .content > .reply {
+    background-color: #3D3D3D;
+    color: #E0E0E0;
+    padding: 12px 14px;
+    border-radius: 16px 16px 6px 16px;
+    box-shadow: 0 2px 5px #111;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+#chat-display > .message.Assistant > .content > .thought h2 {
     width: 100%;
     font-size: 140%;
-    margin: 0;
+    margin: 0 0 6px 0;
 }
 
-#chat-display > .message > .content > .thought::after {
-    content: '';
-    position: absolute;
-    bottom: -10px; /* Position below the bubble */
-    left: 20px; /* Position tail at the left edge for AI messages */
-    transform: none; /* Remove transform to keep tail at left */
-    border-width: 10px 10px 0; /* Triangle shape (top border is hidden) */
-    border-style: solid;
-    border-color: #2D2D2D transparent transparent transparent; /* Match bubble background */
-}
-
-/* Optional: Add a subtle border or accent */
-#chat-display > .message > .content > .thought::before {
-    content: '';
-    position: absolute;
-    top: -5px;
-    left: -5px;
-    right: -5px;
-    bottom: -5px;
-    border: 2px solid #1E88E5; /* Cosmic blue accent from Grok theme */
-    border-radius: 8px; /* Slightly larger than bubble for outer glow effect */
-    z-index: -1; /* Behind the bubble */
-    opacity: 0.5; /* Subtle glow */
-}
-
-/* Reply Styling for AI (Right-aligned) */
-#chat-display > .message.AI > .content > .reply {
-    background-color: #3D3D3D; /* Maintain reply background */
-    color: #E0E0E0; /* Primary text color */
-    padding: 15px 20px;
-    border-radius: 8px; /* Rounded corners for reply */
-    /* Set a default max-width, but allow growth up to 90% */
-    max-width: 90%; /* Allows up to 90% width for AI replies */
-    flex-grow: 1; /* Allows the reply to grow if content requires it */
-    box-shadow: 4px 4px 8px #111; /* Consistent shadow */
-    overflow-y: auto; /* Allow scrolling if content overflows */
-    width: auto; /* Allows dynamic sizing based on content and flex properties */
-    margin-left: auto; /* Pushes to the right for right-alignment */
-}
-
-/* Reply Styling for User (Left-aligned) */
-#chat-display > .message.user > .content > .reply {
-    background-color: #4D4D4D; /* Maintain reply background */
-    color: #E0E0E0; /* Primary text color */
-    padding: 15px 20px;
-    border-radius: 8px; /* Rounded corners for reply */
-    /* Set a default max-width, but allow growth up to 90% */
-    max-width: 90%; /* Allows up to 90% width for user replies */
-    flex-grow: 1; /* Allows the reply to grow if content requires it */
-    box-shadow: 4px 4px 8px #111; /* Consistent shadow */
-    overflow-y: auto; /* Allow scrolling if content overflows */
-    width: auto; /* Allows dynamic sizing based on content and flex properties */
-    margin-right: auto; /* Pushes to the left for left-alignment */
-}
-
-#chat-display > .message > .content > .noThought {
-    border-radius: 8px;
+#chat-display .noThought {
+    border-radius: 16px;
     overflow-y: auto;
-    height: auto;
 }
 
-/* Input */
 #input-container {
     display: flex;
     gap: 10px;
@@ -177,21 +129,24 @@
 
 #message-input {
     flex: 1;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    padding: 12px;
+    border: 1px solid #3a3a3a;
+    background: #1f1f1f;
+    color: #E0E0E0;
+    border-radius: 8px;
     font-size: 16px;
 }
 
 #send-button {
-    padding: 10px 20px;
-    background-color: #007bff;
+    padding: 12px 20px;
+    background-color: #1E88E5;
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 8px;
     cursor: pointer;
+    font-weight: 600;
 }
 
 #send-button:hover {
-    background-color: #0056b3;
+    background-color: #1565C0;
 }

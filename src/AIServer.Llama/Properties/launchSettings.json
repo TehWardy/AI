@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "AIServer.Llama": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:62799;http://localhost:62800"
+    }
+  }
+}

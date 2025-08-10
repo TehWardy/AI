@@ -4,4 +4,18 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="LLamaSharp" Version="0.24.0" />
+    <PackageReference Include="LLamaSharp.Backend.Vulkan" Version="0.24.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AIServer.Llama\AIServer.Llama.csproj" />
+    <ProjectReference Include="..\AIServer.MCPTools.IG\AIServer.MCPTools.IG.csproj" />
+    <ProjectReference Include="..\AIServer.MCPTools\AIServer.MCPTools.csproj" />
+    <ProjectReference Include="..\AIServer.Memory\AIServer.Memory.csproj" />
+    <ProjectReference Include="..\AIServer.Ollama\AIServer.Ollama.csproj" />
+  </ItemGroup>
 </Project>

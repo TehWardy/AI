@@ -1,10 +1,10 @@
-﻿using AIServer.IG;
+﻿using AIServer.MCPTools.IG;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AIServer.Controllers.Api.IG;
 
 [Route("api/pricing/")]
-public class PricingController(ILogger<PricingController> logger, IGClient igClient)
+public class PricingController(IGClient igClient)
     : Controller
 {
     [HttpGet("{epic}")]

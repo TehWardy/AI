@@ -5,8 +5,10 @@
 
 <link rel="stylesheet" href="css/chat.css">
 
-<h1>Crap GPT</h1>
-<div id="chat-container">
+<div style="max-width: 1800px; margin: 0 auto;">
+    <h1>Local GPT</h1>
+</div>
+<div class="container">
     <div id="chat-display"></div>
     <div id="input-container">
         <input type="text" id="message-input" placeholder="Type your message..." />
@@ -20,7 +22,7 @@
 
     // Handle Enter key press
     messageInput.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter') {
+        if (event.key === 'Enter' && !event.shiftKey) {
             sendMessage();
         }
     });
@@ -31,18 +33,17 @@
         if (!message) 
             return;
 
-        addMessage("You", message);
-
         disableChatInput();
-        let response = await sendMessageToServer(message);
+        let reponseElement = addMessage("User", message);
+        let responseReader = await sendMessageToServer(message);
+        reponseElement = addMessage("Assistant", "");
+        await streamToElement(responseReader, reponseElement);
         enableChatInput();
         clearChatInput();
-
-        addMessage("AI", response.reply, response.thought);
     }
 
     async function sendMessageToServer(message) {
-        let response = await fetch('api/chat', {
+        let response = await fetch('api/chat/ollama/gpt-oss:20b/123', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -53,33 +54,75 @@
         if (!response.ok)
             throw new Error('Network response was not ok');
 
-        return await response.json();
+        return response.body.getReader();
     }
 
-    function addMessage(user, message, thought) {
+    function addMessage(user, message) {
         var time = new Date().toTimeString().split(' ')[0];
 
         var msg = document.createElement("div");
         msg.classList.add("message");
-        msg.classList.add(user == "AI" ? user : "user");
+        msg.classList.add(user == "Assistant" ? "Assistant" : "user");
 
-        if(thought && thought.length > 0) {
-            msg.innerHTML  =`
-                <label>${user}:</label>
+        if(user == "Assistant") {
+            msg.innerHTML =`
+                
                 <div class="content">
-                    <div class="thought">Thought:\n${thought}</div>
-                    <div class="reply">${message}</div>
+                    <label>${user}</label>
+                    <div class="thought">Thought:\n</div>
+                    <div class="reply"></div>
                 </div>`;
         }
         else {
-            msg.innerHTML  =`
-                <label>${user}:</label>
+            msg.innerHTML =`
                 <div class="content">
+                    <label>${user}</label>
                     <div class="reply noThought">${message}</div>
                 </div>`;
         }
-
+        
         chatDisplay.appendChild(msg);
+        return msg;
+    }
+
+    async function streamToElement(reader, outputElement) {
+
+        const decoder = new TextDecoder("utf-8");
+        let { value, done } = await reader.read();
+        let buffer = '';
+
+        while (!done) {
+            buffer += decoder.decode(value, { stream: true });
+            let lines = buffer.split('\n');
+            buffer = lines.pop();
+
+            for (let line of lines) {
+                appendLine(line, outputElement);
+            }
+
+            ({ value, done } = await reader.read());
+        }
+
+        if (buffer) {
+            appendLine(buffer, outputElement);
+        }
+    }
+
+    function appendLine(line, element) {
+        var token = JSON.parse(line);
+
+        if(token.Thought)
+            element.querySelector('.thought').textContent += token.Thought;
+
+        if(token.Content.length > 0)
+            element.querySelector('.reply').textContent += token.Content;
+
+        if(token.ToolCalls && token.ToolCalls.length > 0) {
+            for(let toolName in token.ToolCalls) {
+                element.querySelector('.thought').textContent += "\nCalling tool: " + toolName;
+            }
+        }
+
         chatDisplay.scrollTop = chatDisplay.scrollHeight;
     }
 
