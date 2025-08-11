@@ -4,4 +4,5 @@ namespace AIServer.Llama.Foundations;
 public interface ILlamaService
 {
     IAsyncEnumerable<string> SendPromptAsync(ChatPrompt prompt);
+    void LoadModel(string modelName);
 }

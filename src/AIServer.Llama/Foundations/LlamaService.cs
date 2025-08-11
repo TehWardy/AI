@@ -22,6 +22,9 @@ internal class LlamaService : ILlamaService
         return llamaBroker.SendPromptAsync(llamaPrompt);
     }
 
+    public void LoadModel(string modelName) =>
+        llamaBroker.LoadModel(modelName);
+
     LlamaChatPrompt MapChatPromptToLlamaChatPrompt(ChatPrompt prompt)
     {
         return new LlamaChatPrompt
@@ -37,8 +40,19 @@ internal class LlamaService : ILlamaService
     ChatHistory.Message MapMessageDataToChatHistoryMessage(MessageData messageData)
     {
         return new ChatHistory.Message(
-            authorRole: Enum.Parse<AuthorRole>(messageData.Role),
+            authorRole: MapAuthorFromString(messageData.Role),
             content: messageData.Content
         );
+    }
+
+    AuthorRole MapAuthorFromString(string authorRoleString)
+    { 
+        return authorRoleString switch
+        { 
+            "system" => AuthorRole.System,
+            "user" => AuthorRole.User,
+            "assistant" => AuthorRole.Assistant,
+            _ => AuthorRole.Unknown
+        };
     }
 }

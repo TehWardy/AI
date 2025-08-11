@@ -7,13 +7,19 @@ public sealed class LlamaChatClient : ILlamaChatClient
 {
     private readonly ILlamaService llamaService;
 
-    public string ModelId { get; set; } = "gpt-oss:20b";
+    public string ModelName { get; set; }
     public List<MessageData> history { get; set; } = [];
 
     public LlamaChatClient(ILlamaService llamaService)
     {
         this.llamaService = llamaService;
         AddSystemMessage();
+    }
+
+    public void LoadModel(string modelName)
+    {
+        ModelName = modelName;
+        llamaService.LoadModel(modelName);
     }
 
     public void AddSystemMessage()
@@ -31,7 +37,7 @@ public sealed class LlamaChatClient : ILlamaChatClient
     {
         var prompt = new ChatPrompt
         {
-            Model = ModelId,
+            Model = ModelName,
             History = history,
 
             Message = new MessageData

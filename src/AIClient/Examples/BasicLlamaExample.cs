@@ -19,6 +19,11 @@ internal class BasicLlamaExample
 
         IHost host = builder.Build();
 
+        ILlamaChatClient chatClient = host.Services
+            .GetRequiredService<ILlamaChatClient>();
+
+        chatClient.LoadModel("tinyllama-1.1b-chat-v1.0.Q8_0");
+
         Console.ForegroundColor = ConsoleColor.DarkGray;
         Console.Write($"\n[{DateTime.Now:HH:mm:ss}] ");
 
@@ -26,11 +31,6 @@ internal class BasicLlamaExample
         Console.Write("Assistant: ");
         Console.ForegroundColor = ConsoleColor.Yellow;
         Console.WriteLine("Hello, I am a helpfull AI assistant, how can I help you today?");
-
-        ILlamaChatClient chatClient = host.Services
-            .GetRequiredService<ILlamaChatClient>();
-
-
 
         while (true)
         {
