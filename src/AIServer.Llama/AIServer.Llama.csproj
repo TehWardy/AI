@@ -17,9 +17,5 @@
     <ProjectReference Include="..\AIServer.MCPTools\AIServer.MCPTools.csproj" />
     <ProjectReference Include="..\AIServer.Memory\AIServer.Memory.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Models\" />
-  </ItemGroup>
   
 </Project>

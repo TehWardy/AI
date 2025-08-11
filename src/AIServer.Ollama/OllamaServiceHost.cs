@@ -1,6 +1,6 @@
 ﻿using AIServer.Ollama.Foundations;
 
-namespace AIServer.Llama;
+namespace AIServer.Ollama;
 
 public class OllamaServiceHost : IOllamaServiceHost
 {

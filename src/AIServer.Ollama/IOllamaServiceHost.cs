@@ -1,5 +1,5 @@
 ﻿
-namespace AIServer.Llama;
+namespace AIServer.Ollama;
 
 public interface IOllamaServiceHost
 {

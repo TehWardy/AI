@@ -1,16 +1,21 @@
 ﻿using AIServer.Llama.Brokers;
+using AIServer.Llama.Foundations;
 
 namespace AIServer.Llama;
 
 public static class IServiceCollectionExtentions
 {
-    public static void AddLlama(this IServiceCollection services)
+    public static void AddLlama(this IServiceCollection services, string modelPath)
     {
-        AddBrokers(services);
-    }
+        services.AddSingleton(new LlamaConfiguration { ModelPath = modelPath });
 
-    private static void AddBrokers(IServiceCollection services)
-    {
+        // Brokers
         services.AddTransient<ILlamaBroker, LlamaBroker>();
+
+        // Foundations
+        services.AddTransient<ILlamaService, LlamaService>();
+
+        // Exposures
+        services.AddTransient<ILlamaChatClient, LlamaChatClient>();
     }
 }

@@ -1,45 +1,68 @@
-﻿using LLama;
+﻿using AIServer.Llama.Models;
+using LLama;
 using LLama.Common;
+using LLama.Sampling;
 
 namespace AIServer.Llama.Brokers;
 
 internal class LlamaBroker : ILlamaBroker
 {
-    private readonly LLamaWeights modelWeights;
-    private readonly LLamaContext llamaContext;
-    private readonly InteractiveExecutor executor;
-    private readonly InferenceParams inferenceParams;
-    private readonly ChatSession session;
-    private readonly ChatHistory history;
+    private LLamaWeights modelWeights;
+    private LLamaContext llamaContext;
+    private InteractiveExecutor executor;
+    private InferenceParams inferenceParams;
+    private ChatSession session;
+    private string modelName;
+    private readonly LlamaConfiguration config;
 
-    public LlamaBroker(string modelName)
+    public LlamaBroker(LlamaConfiguration config)
     {
-        var modelParams = new ModelParams(modelName)
+        // These seems to be optional 
+        inferenceParams = new InferenceParams
+        {
+            MaxTokens = 1024,
+            SamplingPipeline = new DefaultSamplingPipeline
+            {
+                Temperature = 0.6f,
+                TopK = 40
+            }
+        };
+        this.config = config;
+    }
+
+    public IAsyncEnumerable<string> SendPromptAsync(LlamaChatPrompt prompt)
+    {
+        bool applyInputTransformPipeline =
+            session.InputTransformPipeline.Any();
+
+        session.History.Messages.Clear();
+        session.History.Messages.AddRange(prompt.History);
+
+        return session.ChatAsync(
+            prompt.Message,
+            applyInputTransformPipeline,
+            inferenceParams);
+    }
+
+    public void LoadModel(string modelName)
+    {
+        this.modelName = modelName;
+
+        var modelParams = new ModelParams(Path.Combine(config.ModelPath, modelName + ".gguf"))
         {
             ContextSize = 4096,
             GpuLayerCount = 128
         };
 
-        modelWeights = LLamaWeights.LoadFromFile(modelParams);
-        llamaContext = modelWeights.CreateContext(modelParams);
-        executor = new InteractiveExecutor(llamaContext);
-        history = new ChatHistory();
+        this.modelWeights = LLamaWeights.LoadFromFile(modelParams);
+        this.llamaContext = modelWeights.CreateContext(modelParams);
+        this.executor = new InteractiveExecutor(llamaContext);
+
+        var history = new ChatHistory();
         history.Messages = [];
-        session = new ChatSession(executor, history);
+        this.session = new ChatSession(executor, history);
     }
 
-    public IAsyncEnumerable<string> SendAsync(string userMessage)
-    {
-        bool applyInputTransformPipeline =
-            session.InputTransformPipeline.Any();
-
-        var message = new ChatHistory.Message(
-            AuthorRole.User,
-            userMessage);
-
-        return session.ChatAsync(
-            message,
-            applyInputTransformPipeline,
-            inferenceParams);
-    }
+    public string GetCurrentModelName() => 
+        this.modelName;
 }

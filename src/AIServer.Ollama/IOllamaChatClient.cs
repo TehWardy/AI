@@ -1,6 +1,7 @@
 ﻿using AIServer.Ollama.Models;
 
-namespace AIServer.Llama;
+namespace AIServer.Ollama;
+
 public interface IOllamaChatClient
 {
     List<MessageData> history { get; set; }

@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\AIServer.Llama\AIServer.Llama.csproj" />
     <ProjectReference Include="..\AIServer.Ollama\AIServer.Ollama.csproj" />
   </ItemGroup>
 

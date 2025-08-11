@@ -1,7 +1,7 @@
 ﻿using AIServer.Ollama.Models;
 using AIServer.Ollama.Orchestrations;
 
-namespace AIServer.Llama;
+namespace AIServer.Ollama;
 
 public class OllamaChatClient : IOllamaChatClient
 {

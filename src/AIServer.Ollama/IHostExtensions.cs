@@ -1,5 +1,4 @@
-﻿using AIServer.Llama;
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Hosting;
 
 namespace AIServer.Ollama;
 

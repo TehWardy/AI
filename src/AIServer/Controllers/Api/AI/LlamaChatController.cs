@@ -26,7 +26,7 @@ public class LlamaChatController(
         var history = await conversationProvider
             .GetConversationAsync(id);
 
-        var chat = new LlamaChat(
+        var chat = new LlamaChatClient(
             modelName: modelPath,
             conversationHistory: history);
 
