@@ -1,8 +1,10 @@
-﻿using AIServer.Llama.Models;
+using AIServer.Llama.Models;
+using System.Threading.Tasks;
 
 namespace AIServer.Llama;
+
 public interface ILlamaChatClient
 {
     IAsyncEnumerable<string> SendAsync(string userMessage);
-    IAsyncEnumerable<string> InitializeChatSession(string modelName);
+    ValueTask InitializeChatSession(string modelName);
 }
