@@ -2,7 +2,6 @@ using AIServer.Llama.Models;
 using LLama;
 using LLama.Common;
 using LLama.Sampling;
-using System.Threading.Tasks;
 
 namespace AIServer.Llama.Brokers;
 
@@ -35,8 +34,7 @@ internal class LlamaBroker : ILlamaBroker
             Path.Combine(config.ModelsPath, $"{modelName}.gguf"));
 
         chatSession = CreateSession(llamaContext);
-        chatSession.ChatHistory.Add(
-            new ChatHistory.Message(AuthorRole.System, prompt));
+        chatSession.History.AddMessage(AuthorRole.System, prompt);
 
         return ValueTask.CompletedTask;
     }
