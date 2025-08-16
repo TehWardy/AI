@@ -30,11 +30,8 @@ internal class BasicLlamaExample
 
         Console.ForegroundColor = ConsoleColor.Yellow;
 
-        IAsyncEnumerable<string> welcomeResponse = chatClient.InitializeChatSession(
+        await chatClient.InitializeChatSession(
             modelName: "DeepSeek-R1-0528-Qwen3-8B-BF16");
-
-        await foreach (string token in welcomeResponse)
-            Console.Write(token);
 
         while (true)
         {

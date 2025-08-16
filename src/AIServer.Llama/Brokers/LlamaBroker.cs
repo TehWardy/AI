@@ -1,7 +1,8 @@
-﻿using AIServer.Llama.Models;
+using AIServer.Llama.Models;
 using LLama;
 using LLama.Common;
 using LLama.Sampling;
+using System.Threading.Tasks;
 
 namespace AIServer.Llama.Brokers;
 
@@ -14,7 +15,7 @@ internal class LlamaBroker : ILlamaBroker
     public LlamaBroker(LlamaConfiguration config) =>
         this.config = config;
 
-    public void InitializeChatSession(string modelName)
+    public ValueTask InitializeChatSession(string modelName, string prompt)
     {
         inferenceParams = new InferenceParams
         {
@@ -34,6 +35,10 @@ internal class LlamaBroker : ILlamaBroker
             Path.Combine(config.ModelsPath, $"{modelName}.gguf"));
 
         chatSession = CreateSession(llamaContext);
+        chatSession.ChatHistory.Add(
+            new ChatHistory.Message(AuthorRole.System, prompt));
+
+        return ValueTask.CompletedTask;
     }
 
     public IAsyncEnumerable<string> SendPromptAsync(LlamaChatPrompt prompt) =>
@@ -44,8 +49,8 @@ internal class LlamaBroker : ILlamaBroker
         var modelParams = new ModelParams(modelPath)
         {
             GpuLayerCount = -1,
-            ContextSize = 4096,          
-            BatchSize = 128,              
+            ContextSize = 4096,
+            BatchSize = 128,
             UseMemorymap = true,
             UseMemoryLock = false
         };

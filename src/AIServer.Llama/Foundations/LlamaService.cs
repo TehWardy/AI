@@ -1,6 +1,7 @@
-﻿using AIServer.Llama.Brokers;
+using AIServer.Llama.Brokers;
 using AIServer.Llama.Models;
 using LLama.Common;
+using System.Threading.Tasks;
 
 namespace AIServer.Llama.Foundations;
 
@@ -19,19 +20,8 @@ internal class LlamaService : ILlamaService
         return llamaBroker.SendPromptAsync(llamaPrompt);
     }
 
-    public IAsyncEnumerable<string> InitializeChatSession(string modelName)
-    {
-        llamaBroker.InitializeChatSession(modelName);
-
-        var systemPrompt = new LlamaChatPrompt
-        {
-            Message = new ChatHistory.Message(
-                authorRole: AuthorRole.System,
-                content: "You are a concise assistant. keep your answers to user prompts short.")
-        };
-
-        return llamaBroker.SendPromptAsync(systemPrompt);
-    }
+    public async ValueTask InitializeChatSession(string modelName, string systemPrompt) =>
+        await llamaBroker.InitializeChatSession(modelName, systemPrompt);
 
     LlamaChatPrompt MapChatPromptToLlamaChatPrompt(ChatPrompt prompt)
     {
@@ -50,9 +40,9 @@ internal class LlamaService : ILlamaService
     }
 
     AuthorRole MapAuthorFromString(string authorRoleString)
-    { 
+    {
         return authorRoleString switch
-        { 
+        {
             "system" => AuthorRole.System,
             "user" => AuthorRole.User,
             "assistant" => AuthorRole.Assistant,
