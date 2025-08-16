@@ -6,6 +6,5 @@ namespace AIServer.Llama.Brokers;
 internal interface ILlamaBroker
 {
     IAsyncEnumerable<string> SendPromptAsync(LlamaChatPrompt prompt);
-    void LoadModel(string modelName);
-    string GetCurrentModelName();
+    void InitializeChatSession(string modelName);
 }

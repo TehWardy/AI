@@ -1,5 +1,4 @@
-﻿using System.Data;
-using AIServer.Llama.Brokers;
+﻿using AIServer.Llama.Brokers;
 using AIServer.Llama.Models;
 using LLama.Common;
 
@@ -14,26 +13,30 @@ internal class LlamaService : ILlamaService
 
     public IAsyncEnumerable<string> SendPromptAsync(ChatPrompt prompt)
     {
-        if (llamaBroker.GetCurrentModelName() != prompt.Model)
-            llamaBroker.LoadModel(prompt.Model);
-
         var llamaPrompt =
             MapChatPromptToLlamaChatPrompt(prompt);
 
         return llamaBroker.SendPromptAsync(llamaPrompt);
     }
 
-    public void LoadModel(string modelName) =>
-        llamaBroker.LoadModel(modelName);
+    public IAsyncEnumerable<string> InitializeChatSession(string modelName)
+    {
+        llamaBroker.InitializeChatSession(modelName);
+
+        var systemPrompt = new LlamaChatPrompt
+        {
+            Message = new ChatHistory.Message(
+                authorRole: AuthorRole.System,
+                content: "You are a concise assistant. keep your answers to user prompts short.")
+        };
+
+        return llamaBroker.SendPromptAsync(systemPrompt);
+    }
 
     LlamaChatPrompt MapChatPromptToLlamaChatPrompt(ChatPrompt prompt)
     {
         return new LlamaChatPrompt
         {
-            History = prompt.History
-                .Select(MapMessageDataToChatHistoryMessage)
-                .ToList(),
-
             Message = MapMessageDataToChatHistoryMessage(prompt.Message)
         };
     }

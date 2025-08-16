@@ -7,20 +7,19 @@ namespace AIServer.Llama.Brokers;
 
 internal class LlamaBroker : ILlamaBroker
 {
+    private LlamaConfiguration config;
     private InferenceParams inferenceParams;
-    private LLamaWeights modelWeights;
-    private LLamaContext llamaContext;
-    private string modelName;
-    private readonly LlamaConfiguration config;
+    private ChatSession chatSession;
 
-    public LlamaBroker(LlamaConfiguration config)
-    {
+    public LlamaBroker(LlamaConfiguration config) =>
         this.config = config;
 
+    public void InitializeChatSession(string modelName)
+    {
         inferenceParams = new InferenceParams
         {
             MaxTokens = 256,
-            AntiPrompts = new List<string> { "User:" },   // use the actual stop token(s) your model emits
+            AntiPrompts = ["User:"],
             SamplingPipeline = new DefaultSamplingPipeline
             {
                 Temperature = 0.7f,
@@ -30,19 +29,18 @@ internal class LlamaBroker : ILlamaBroker
                 RepeatPenalty = 1.1f
             }
         };
+
+        LLamaContext llamaContext = LoadModel(
+            Path.Combine(config.ModelsPath, $"{modelName}.gguf"));
+
+        chatSession = CreateSession(llamaContext);
     }
 
-    public IAsyncEnumerable<string> SendPromptAsync(LlamaChatPrompt prompt)
-    {
-        ChatSession session = CreateSession(prompt.History);
-        return session.ChatAsync(prompt.Message, inferenceParams);
-    }
+    public IAsyncEnumerable<string> SendPromptAsync(LlamaChatPrompt prompt) =>
+        chatSession.ChatAsync(prompt.Message, inferenceParams);
 
-    public void LoadModel(string modelName)
+    LLamaContext LoadModel(string modelPath)
     {
-        this.modelName = modelName;
-        string modelPath = Path.Combine(config.ModelsPath, modelName + ".gguf");
-
         var modelParams = new ModelParams(modelPath)
         {
             GpuLayerCount = -1,
@@ -52,18 +50,13 @@ internal class LlamaBroker : ILlamaBroker
             UseMemoryLock = false
         };
 
-        this.modelWeights = LLamaWeights.LoadFromFile(modelParams);
-        this.llamaContext = modelWeights.CreateContext(modelParams);
+        var modelWeights = LLamaWeights.LoadFromFile(modelParams);
+        return modelWeights.CreateContext(modelParams);
     }
 
-    public string GetCurrentModelName() => 
-        this.modelName;
-
-    ChatSession CreateSession(List<ChatHistory.Message> historyMessages)
+    static ChatSession CreateSession(LLamaContext llamaContext)
     {
         var executor = new InteractiveExecutor(llamaContext);
-        var history = new ChatHistory();
-        history.Messages = historyMessages;
-        return new ChatSession(executor, history);
+        return new ChatSession(executor);
     }
 }

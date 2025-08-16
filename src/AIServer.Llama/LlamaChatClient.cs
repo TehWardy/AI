@@ -7,39 +7,16 @@ public sealed class LlamaChatClient : ILlamaChatClient
 {
     private readonly ILlamaService llamaService;
 
-    public string ModelName { get; set; }
-    public List<MessageData> history { get; set; } = [];
-
-    public LlamaChatClient(ILlamaService llamaService)
-    {
+    public LlamaChatClient(ILlamaService llamaService) =>
         this.llamaService = llamaService;
-        AddSystemMessage();
-    }
 
-    public void LoadModel(string modelName)
-    {
-        ModelName = modelName;
-        llamaService.LoadModel(modelName);
-    }
-
-    public void AddSystemMessage()
-    {
-        var systemPrompt = new MessageData
-        {
-            Role = "system",
-            Content = "You are a concise assistant. Answer in 2 sentences."
-        };
-
-        history.Add(systemPrompt);
-    }
+    public IAsyncEnumerable<string> InitializeChatSession(string modelName) =>
+        llamaService.InitializeChatSession(modelName);
 
     public IAsyncEnumerable<string> SendAsync(string userMessage)
     {
         var prompt = new ChatPrompt
         {
-            Model = ModelName,
-            History = history,
-
             Message = new MessageData
             {
                 Role = "user",

@@ -6,11 +6,11 @@ namespace AIServer.Llama;
 
 public static class IServiceCollectionExtentions
 {
-    public static void AddLlama(this IServiceCollection services, string modelPath)
+    public static void AddLlama(this IServiceCollection services, string modelsPath)
     {
         var config = new LlamaConfiguration
         {
-            ModelsPath = modelPath
+            ModelsPath = modelsPath
         };
 
         services.AddSingleton(config);

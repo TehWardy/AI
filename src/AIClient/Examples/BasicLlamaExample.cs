@@ -15,22 +15,26 @@ internal class BasicLlamaExample
 
         var builder = Host.CreateApplicationBuilder(args);
 
-        builder.Services.AddLlama(modelPath: "E:\\AI\\LLMs");
+        builder.Services.AddLlama(modelsPath: @"E:\AI\LLMs\");
 
         IHost host = builder.Build();
 
         ILlamaChatClient chatClient = host.Services
             .GetRequiredService<ILlamaChatClient>();
 
-        chatClient.LoadModel("DeepSeek-R1-0528-Qwen3-8B-BF16");
-
         Console.ForegroundColor = ConsoleColor.DarkGray;
         Console.Write($"\n[{DateTime.Now:HH:mm:ss}] ");
 
         Console.ForegroundColor = ConsoleColor.Green;
         Console.Write("Assistant: ");
+
         Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.WriteLine("Hello, I am a helpfull AI assistant, how can I help you today?");
+
+        IAsyncEnumerable<string> welcomeResponse = chatClient.InitializeChatSession(
+            modelName: "DeepSeek-R1-0528-Qwen3-8B-BF16");
+
+        await foreach (string token in welcomeResponse)
+            Console.Write(token);
 
         while (true)
         {
