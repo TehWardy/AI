@@ -2,5 +2,5 @@
 
 public class LlamaConfiguration
 {
-    public string ModelPath { get; set; }
+    public string ModelsPath { get; set; }
 }

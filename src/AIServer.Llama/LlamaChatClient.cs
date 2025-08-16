@@ -27,7 +27,7 @@ public sealed class LlamaChatClient : ILlamaChatClient
         var systemPrompt = new MessageData
         {
             Role = "system",
-            Content = $"You are a concise and helpful assistant."
+            Content = "You are a concise assistant. Answer in 2 sentences."
         };
 
         history.Add(systemPrompt);

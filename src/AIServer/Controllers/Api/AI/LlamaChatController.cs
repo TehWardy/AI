@@ -8,6 +8,7 @@ namespace AIServer.Controllers.Api.AI;
 [Route("api/chat/llama/")]
 public class LlamaChatController(
     IConfiguration config,
+    ILlamaChatClient chatClient,
     ConversationHistoryProvider<ChatHistory.Message> conversationProvider)
         : ChatController
 {
@@ -26,10 +27,6 @@ public class LlamaChatController(
         var history = await conversationProvider
             .GetConversationAsync(id);
 
-        var chat = new LlamaChatClient(
-            modelName: modelPath,
-            conversationHistory: history);
-
-        await Respond(chat.SendAsync(message));
+        await Respond(chatClient.SendAsync(message));
     }
 }

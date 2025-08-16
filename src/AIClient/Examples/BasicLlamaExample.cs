@@ -15,14 +15,14 @@ internal class BasicLlamaExample
 
         var builder = Host.CreateApplicationBuilder(args);
 
-        builder.Services.AddLlama("E:\\AI\\LLMs");
+        builder.Services.AddLlama(modelPath: "E:\\AI\\LLMs");
 
         IHost host = builder.Build();
 
         ILlamaChatClient chatClient = host.Services
             .GetRequiredService<ILlamaChatClient>();
 
-        chatClient.LoadModel("tinyllama-1.1b-chat-v1.0.Q8_0");
+        chatClient.LoadModel("DeepSeek-R1-0528-Qwen3-8B-BF16");
 
         Console.ForegroundColor = ConsoleColor.DarkGray;
         Console.Write($"\n[{DateTime.Now:HH:mm:ss}] ");

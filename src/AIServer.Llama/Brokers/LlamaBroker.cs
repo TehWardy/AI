@@ -7,62 +7,63 @@ namespace AIServer.Llama.Brokers;
 
 internal class LlamaBroker : ILlamaBroker
 {
+    private InferenceParams inferenceParams;
     private LLamaWeights modelWeights;
     private LLamaContext llamaContext;
-    private InteractiveExecutor executor;
-    private InferenceParams inferenceParams;
-    private ChatSession session;
     private string modelName;
     private readonly LlamaConfiguration config;
 
     public LlamaBroker(LlamaConfiguration config)
     {
-        // These seems to be optional 
+        this.config = config;
+
         inferenceParams = new InferenceParams
         {
-            MaxTokens = 1024,
+            MaxTokens = 256,
+            AntiPrompts = new List<string> { "User:" },   // use the actual stop token(s) your model emits
             SamplingPipeline = new DefaultSamplingPipeline
             {
-                Temperature = 0.6f,
-                TopK = 40
+                Temperature = 0.7f,
+                TopP = 0.9f,
+                MinP = 0.05f,
+                TopK = 40,
+                RepeatPenalty = 1.1f
             }
         };
-        this.config = config;
     }
 
     public IAsyncEnumerable<string> SendPromptAsync(LlamaChatPrompt prompt)
     {
-        bool applyInputTransformPipeline =
-            session.InputTransformPipeline.Any();
-
-        session.History.Messages.Clear();
-        session.History.Messages.AddRange(prompt.History);
-
-        return session.ChatAsync(
-            prompt.Message,
-            applyInputTransformPipeline,
-            inferenceParams);
+        ChatSession session = CreateSession(prompt.History);
+        return session.ChatAsync(prompt.Message, inferenceParams);
     }
 
     public void LoadModel(string modelName)
     {
         this.modelName = modelName;
+        string modelPath = Path.Combine(config.ModelsPath, modelName + ".gguf");
 
-        var modelParams = new ModelParams(Path.Combine(config.ModelPath, modelName + ".gguf"))
+        var modelParams = new ModelParams(modelPath)
         {
-            ContextSize = 4096,
-            GpuLayerCount = 128
+            GpuLayerCount = -1,
+            ContextSize = 4096,          
+            BatchSize = 128,              
+            UseMemorymap = true,
+            UseMemoryLock = false
         };
 
         this.modelWeights = LLamaWeights.LoadFromFile(modelParams);
         this.llamaContext = modelWeights.CreateContext(modelParams);
-        this.executor = new InteractiveExecutor(llamaContext);
-
-        var history = new ChatHistory();
-        history.Messages = [];
-        this.session = new ChatSession(executor, history);
     }
 
     public string GetCurrentModelName() => 
         this.modelName;
+
+    ChatSession CreateSession(List<ChatHistory.Message> historyMessages)
+    {
+        var executor = new InteractiveExecutor(llamaContext);
+        var history = new ChatHistory();
+        history.Messages = historyMessages;
+        return new ChatSession(executor, history);
+    }
 }

@@ -1,4 +1,5 @@
-﻿using AIServer.Llama.Brokers;
+﻿using System.Data;
+using AIServer.Llama.Brokers;
 using AIServer.Llama.Models;
 using LLama.Common;
 
