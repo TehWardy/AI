@@ -1,3 +1,4 @@
+using AIServer.Llama.Configurations;
 using AIServer.Llama.Models;
 using LLama;
 using LLama.Common;
@@ -14,12 +15,12 @@ internal class LlamaBroker : ILlamaBroker
     public LlamaBroker(LlamaConfiguration config) =>
         this.config = config;
 
-    public ValueTask InitializeChatSession(string modelName, string prompt)
+    public async ValueTask InitializeChatSession(string modelName, string prompt)
     {
         inferenceParams = new InferenceParams
         {
-            MaxTokens = 256,
-            AntiPrompts = ["User:"],
+            MaxTokens = -1,
+            AntiPrompts = ["<|user|>", "<|end|>", "User:"],
             SamplingPipeline = new DefaultSamplingPipeline
             {
                 Temperature = 0.7f,
@@ -33,10 +34,7 @@ internal class LlamaBroker : ILlamaBroker
         LLamaContext llamaContext = LoadModel(
             Path.Combine(config.ModelsPath, $"{modelName}.gguf"));
 
-        chatSession = CreateSession(llamaContext);
-        chatSession.History.AddMessage(AuthorRole.System, prompt);
-
-        return ValueTask.CompletedTask;
+        chatSession = CreateSession(llamaContext, prompt);
     }
 
     public IAsyncEnumerable<string> SendPromptAsync(LlamaChatPrompt prompt) =>
@@ -46,7 +44,7 @@ internal class LlamaBroker : ILlamaBroker
     {
         var modelParams = new ModelParams(modelPath)
         {
-            GpuLayerCount = -1,
+            GpuLayerCount = 128,
             ContextSize = 4096,
             BatchSize = 128,
             UseMemorymap = true,
@@ -57,9 +55,17 @@ internal class LlamaBroker : ILlamaBroker
         return modelWeights.CreateContext(modelParams);
     }
 
-    static ChatSession CreateSession(LLamaContext llamaContext)
+    static ChatSession CreateSession(LLamaContext llamaContext, string systemPrompt)
     {
+        var history = new ChatHistory 
+        { 
+            Messages = new List<ChatHistory.Message> 
+            { 
+                new ChatHistory.Message(AuthorRole.System, systemPrompt)
+            } 
+        };
+
         var executor = new InteractiveExecutor(llamaContext);
-        return new ChatSession(executor);
+        return new ChatSession(executor, history);
     }
 }

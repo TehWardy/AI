@@ -33,6 +33,11 @@ public class OllamaModelHostBroker : IOllamaModelHostBroker
         {
             StartInfo = new ProcessStartInfo
             {
+                EnvironmentVariables =
+                {
+                    { "OLLAMA_HOST", config.OllamaHostUrl },
+                    { "OLLAMA_MODELS", config.OllamaModelsPath }
+                },
                 FileName = config.OllamaExePath,
                 Arguments = "serve",
                 UseShellExecute = false,

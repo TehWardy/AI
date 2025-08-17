@@ -4,7 +4,7 @@ namespace AIServer.Ollama;
 
 public static class IHostExtensions
 {
-    public static async void StartOllama(this IHost host)
+    public static async ValueTask StartOllamaAsync(this IHost host)
     {
         var serviceHost = (IOllamaServiceHost)host.Services
             .GetService(typeof(IOllamaServiceHost));

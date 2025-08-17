@@ -11,7 +11,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddOllamaClient("E:\\AI\\Ollama\\Ollama.exe");
-builder.Services.AddOllamaHost("http://localhost:11434/"); 
+//builder.Services.AddOllamaHost("http://localhost:11434/"); 
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();

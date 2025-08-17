@@ -1,4 +1,5 @@
 ﻿using AIServer.Llama.Brokers;
+using AIServer.Llama.Configurations;
 using AIServer.Llama.Foundations;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -10,6 +11,7 @@ public static class IServiceCollectionExtentions
     {
         var config = new LlamaConfiguration
         {
+            NativeLibraryPath = "runtimes\\win-x64\\native\\cuda12",
             ModelsPath = modelsPath
         };
 

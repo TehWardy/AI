@@ -52,11 +52,13 @@ public static class IServiceCollectionExtensions
         services.AddTransient<IOllamaChatClient, OllamaChatClient>();
     }
 
-    public static void AddOllamaHost(this IServiceCollection services, string ollamaExePath)
+    public static void AddOllamaHost(this IServiceCollection services, string ollamaExePath, int hostPort, string modelsPath)
     {
         services.AddTransient(ctx => new OllamaHostConfiguration
         {
-            OllamaExePath = ollamaExePath
+            OllamaExePath = ollamaExePath, 
+            OllamaHostUrl = $"http://localhost:{hostPort}", 
+            OllamaModelsPath = modelsPath
         });
 
         // Host Brokers
