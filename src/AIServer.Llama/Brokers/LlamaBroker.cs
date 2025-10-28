@@ -15,12 +15,12 @@ internal class LlamaBroker : ILlamaBroker
     public LlamaBroker(LlamaConfiguration config) =>
         this.config = config;
 
-    public async ValueTask InitializeChatSession(string modelName, string prompt)
+    public ValueTask InitializeChatSession(string modelName, string prompt)
     {
         inferenceParams = new InferenceParams
         {
             MaxTokens = -1,
-            AntiPrompts = ["<|user|>", "<|end|>", "User:"],
+            AntiPrompts = ["<|assistant|>", "<|user|>", "<|end|>", "User:"],
             SamplingPipeline = new DefaultSamplingPipeline
             {
                 Temperature = 0.7f,
@@ -35,6 +35,8 @@ internal class LlamaBroker : ILlamaBroker
             Path.Combine(config.ModelsPath, $"{modelName}.gguf"));
 
         chatSession = CreateSession(llamaContext, prompt);
+
+        return ValueTask.CompletedTask;
     }
 
     public IAsyncEnumerable<string> SendPromptAsync(LlamaChatPrompt prompt) =>

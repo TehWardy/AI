@@ -1,7 +1,7 @@
-﻿using System.Diagnostics;
+﻿namespace AIServer.LlamaCpp.Foundations;
 
-namespace AIServer.LlamaCpp.Foundations;
 internal interface ILlamaCppHostService
 {
-    ValueTask<Process> StartAsync(string modelName);
+    IAsyncEnumerable<string> StartAsync(string modelName);
+    ValueTask StopAsync();
 }

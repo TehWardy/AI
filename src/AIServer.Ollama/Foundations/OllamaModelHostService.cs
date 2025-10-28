@@ -34,7 +34,7 @@ internal class OllamaModelHostService : IOllamaModelHostService
         if (alreadyRunning)
             throw new InvalidOperationException("AI Host Process is already running!");
 
-        yield return $"Starting up host ...";
+        yield return "Starting up host ...";
 
         Process ollamaProcess = await hostBroker
             .CreateOllamaHostProcessAsync();
@@ -44,6 +44,8 @@ internal class OllamaModelHostService : IOllamaModelHostService
 
         await foreach (string processOutputLine in processOutput)
             yield return processOutputLine;
+
+        yield return "Host is ready!";
     }
 
     async IAsyncEnumerable<string> HandleProcessOutput(Process process)

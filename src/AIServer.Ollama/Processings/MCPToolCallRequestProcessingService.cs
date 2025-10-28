@@ -81,9 +81,9 @@ internal class MCPToolCallRequestProcessingService : IMCPToolCallRequestProcessi
         };
     }
 
-    MessageData BuildToolMessageData(string toolName, string content)
+    ResponseMessageData BuildToolMessageData(string toolName, string content)
     {
-        return new MessageData
+        return new ResponseMessageData
         {
             Role = "tool",
             ToolName = toolName,

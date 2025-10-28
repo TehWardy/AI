@@ -1,4 +1,5 @@
 ﻿using AIServer.LlamaCpp;
+using AIServer.LlamaCpp.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -15,7 +16,7 @@ builder.Services.AddLlamaCpp(llamaCppConfig =>
 });
 
 IHost host = builder.Build();
-await host.StartLlamaHostAsync("gpt-oss-20b-mxfp4");
+await host.StartLlamaHostAsync("gpt-oss-20b-mxfp4"); 
 
 Console.ForegroundColor = ConsoleColor.DarkGray;
 Console.Write($"\n[{DateTime.Now:HH:mm:ss}] ");
@@ -40,6 +41,9 @@ while (true)
 
     string nextPrompt = Console.ReadLine()?.Trim();
 
+    if (nextPrompt == "exit")
+        break;
+
     if (string.IsNullOrEmpty(nextPrompt))
         continue; // skip empty lines
 
@@ -54,8 +58,11 @@ while (true)
     Console.ForegroundColor = ConsoleColor.Yellow;
 
     // Start streaming tokens
-    await foreach (string token in chatClient.SendAsync(nextPrompt))
-        Console.Write(token);
+    await foreach (ResponseToken token in chatClient.SendAsync(nextPrompt))
+        Console.Write(token.Message.Content);
 
     Console.WriteLine();
 }
+
+await host.StopLlamaHostAsync();
+await host.StopAsync();

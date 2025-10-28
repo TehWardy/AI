@@ -9,7 +9,7 @@ var config = new ConfigurationBuilder()
 
 var builder = Host.CreateApplicationBuilder(args);
 
-builder.Services.AddLlama(modelsPath: config.GetValue<string>("AI.LanguageModelPath"));
+builder.Services.AddLlama(modelsPath: config.GetValue<string>("AI.ModelsPath"));
 
 IHost host = builder.Build();
 
@@ -19,7 +19,8 @@ ILlamaChatClient chatClient = host.Services
     .GetRequiredService<ILlamaChatClient>();
 
 await chatClient.InitializeChatSession(
-    modelName: "gpt-oss-20b-Q4_K_M");
+    modelName: "Mistral-7B-Instruct-v0.3.Q8_0", 
+    systemPrompt: "You are a concise assistant. keep your answers to user prompts short.");
 
 Console.ForegroundColor = ConsoleColor.DarkGray;
 Console.Write($"\n[{DateTime.Now:HH:mm:ss}] ");

@@ -1,53 +1,101 @@
 ﻿using System.Diagnostics;
+using System.Threading.Channels;
 using AIServer.LlamaCpp.Brokers;
-using AIServer.LlamaCpp.Configurations;
 
 namespace AIServer.LlamaCpp.Foundations;
 
 internal class LlamaCppHostService : ILlamaCppHostService
 {
     private readonly ILlamaCppHostBroker llamaCppHostBroker;
-    private readonly LlamaCppConfiguration config;
 
-    public LlamaCppHostService(
-        ILlamaCppHostBroker llamaCppHostBroker,
-        LlamaCppConfiguration config)
-    {
+    public LlamaCppHostService(ILlamaCppHostBroker llamaCppHostBroker) =>
         this.llamaCppHostBroker = llamaCppHostBroker;
-        this.config = config;
-    }
 
-    public async ValueTask<Process> StartAsync(string modelName)
+    public async IAsyncEnumerable<string> StartAsync(string modelName)
     {
+        bool alreadyRunning = await llamaCppHostBroker.IsHostProcessRunningAsync();
+
+        if (alreadyRunning)
+            throw new InvalidOperationException("AI Host Process is already running!");
+
+
         Process llamaServerProcess = await llamaCppHostBroker
             .StartAsync(modelName);
 
-        await WaitForServerReadyAsync();
-        return llamaServerProcess;
+        IAsyncEnumerable<string> processOutput = 
+            HandleProcessOutput(llamaServerProcess);
+
+        await foreach (string processOutputLine in processOutput)
+            yield return processOutputLine;
+
+        yield return "Host is ready!";
     }
 
-    async ValueTask WaitForServerReadyAsync(int retries = 60, int delayMs = 500)
+    public ValueTask StopAsync()
     {
-        var llamaClient = new HttpClient
+        llamaCppHostBroker.Dispose();
+        return ValueTask.CompletedTask;
+    }
+
+    async IAsyncEnumerable<string> HandleProcessOutput(Process process)
+    {
+        // Bridge: writers (event handlers) -> reader (iterator)
+        var channel = Channel.CreateUnbounded<string>(new UnboundedChannelOptions
         {
-            BaseAddress = new Uri($"http://127.0.0.1:{config.ServerPort}"),
-            Timeout = TimeSpan.FromMinutes(30)
+            SingleReader = true,
+            SingleWriter = false
+        });
+
+        var stdoutClosed = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var stderrClosed = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        DataReceivedEventHandler outHandler = (_, e) =>
+        {
+            if (e.Data is null)
+            {
+                stdoutClosed.TrySetResult();
+                return;
+            }
+
+            channel.Writer.TryWrite($"ERROR {e.Data}");
         };
 
-        await Task.Delay(delayMs);
-
-        for (int i = 0; i < retries; i++)
+        DataReceivedEventHandler errHandler = (_, e) =>
         {
-            using var req = new HttpRequestMessage(HttpMethod.Get, "/version");
-
-            using var rsp = await llamaClient
-                .SendAsync(req)
-                .ConfigureAwait(false);
-
-            if (rsp.IsSuccessStatusCode)
+            if (e.Data is null)
+            {
+                stderrClosed.TrySetResult();
                 return;
+            }
 
-            await Task.Delay(delayMs);
-        }
+            channel.Writer.TryWrite($"INFO {e.Data}");
+        };
+
+        process.OutputDataReceived += outHandler;
+        process.ErrorDataReceived += errHandler;
+
+        process.Start();
+        process.BeginOutputReadLine();
+        process.BeginErrorReadLine();
+
+        // When the process and both streams finish, complete the channel
+        var completionTask = Task.Run(async () =>
+        {
+            try
+            {
+                await process.WaitForExitAsync();
+                await Task.WhenAll(stdoutClosed.Task, stderrClosed.Task);
+                channel.Writer.TryComplete();
+            }
+            catch (Exception ex)
+            {
+                channel.Writer.TryComplete(ex);
+            }
+        });
+
+        await foreach (var line in channel.Reader.ReadAllAsync())
+            yield return line;
+
+        await completionTask;
     }
 }

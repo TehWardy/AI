@@ -32,9 +32,6 @@ Console.WriteLine("Hello, I am a helpfull AI assistant, how can I help you today
 IOllamaChatClient chatClient = host.Services
     .GetRequiredService<IOllamaChatClient>();
 
-//chatClient.ModelId = config.GetValue<string>("AI.Model");
-chatClient.ModelId = "gpt-oss:20b";
-
 while (true)
 {
     Console.ForegroundColor = ConsoleColor.DarkGray;
@@ -46,6 +43,9 @@ while (true)
     Console.ResetColor();
 
     string nextPrompt = Console.ReadLine()?.Trim();
+
+    if (nextPrompt == "exit")
+        break;
 
     if (string.IsNullOrEmpty(nextPrompt))
         continue; // skip empty lines
@@ -66,3 +66,6 @@ while (true)
 
     Console.WriteLine();
 }
+
+await host.StopOllamaAsync();
+await host.StopAsync();

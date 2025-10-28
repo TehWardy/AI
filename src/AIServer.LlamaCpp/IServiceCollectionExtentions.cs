@@ -1,7 +1,7 @@
-﻿using AIServer.Llama;
-using AIServer.LlamaCpp.Brokers;
+﻿using AIServer.LlamaCpp.Brokers;
 using AIServer.LlamaCpp.Configurations;
 using AIServer.LlamaCpp.Foundations;
+using AIServer.LlamaCpp.Processings;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AIServer.LlamaCpp;
@@ -24,8 +24,12 @@ public static class IServiceCollectionExtentions
 
         // Foundations
         services.AddTransient<ILlamaCppHostService, LlamaCppHostService>();
+        services.AddTransient<ILlamaCppService, LlamaCppService>();
+
+        // Processings
+        services.AddTransient<ILlamaCppProcessingService, LlamaCppProcessingService>();
 
         // Exposures
-        services.AddTransient<ILlamaChatClient, LlamaChatClient>();
+        services.AddTransient<ILlamaCppChatClient, LlamaCppChatClient>();
     }
 }

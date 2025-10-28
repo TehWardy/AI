@@ -9,7 +9,6 @@ public class OllamaChatClient : IOllamaChatClient
 
     public string ModelId { get; set; } = "gpt-oss:20b";
     public List<MessageData> history { get; set; } = [];
-    public IEnumerable<IDictionary<string, object>> Tools { get; set; }
 
     public OllamaChatClient(IOllamaConversationOrchestrationService converstionService) =>
         this.converstionService = converstionService;
@@ -31,8 +30,7 @@ public class OllamaChatClient : IOllamaChatClient
             {
                 Temperature = 1.0,
                 ContextLength = 8196
-            },
-            Tools = Tools,
+            }
         };
 
         return converstionService.SendPromptAsync(prompt);

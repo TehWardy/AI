@@ -5,10 +5,8 @@ namespace AIServer.LlamaCpp.Brokers;
 
 internal sealed partial class LlamaCppHostBroker : ILlamaCppHostBroker
 {
+    private Process llamaCppProcess = null;
     private readonly LlamaCppConfiguration config;
-
-    private Process serverProcess;
-    private HttpClient llamaClient;
 
     static readonly string llamaServerExePath = Path
         .Combine(AppContext.BaseDirectory, "LlamaCpp\\llama-server.exe");
@@ -27,16 +25,12 @@ internal sealed partial class LlamaCppHostBroker : ILlamaCppHostBroker
         {
             "-m", $"\"{modelPath}\"",
             "--port", config.ServerPort.ToString(),
-            "--ctx-size", config.ContextSize.ToString(),
-            "--batch-size", config.BatchSize.ToString(),
-            "--n-gpu-layers", config.GpuLayerCount.ToString(),
-            "--no-webui",
-            "--use-mmap",
-            "--mlock", config.UseMemoryLock.ToString().ToLower()
+            "-c", config.ContextSize.ToString(),
+            "-ngl", config.GpuLayerCount.ToString()
         };
 
         // Start server
-        serverProcess = new Process
+        llamaCppProcess = new Process
         {
             StartInfo = new ProcessStartInfo
             {
@@ -50,39 +44,24 @@ internal sealed partial class LlamaCppHostBroker : ILlamaCppHostBroker
             EnableRaisingEvents = true
         };
 
-        serverProcess.Start();
-
-        // log server output in background (non-blocking)
-        _ = Task.Run(async () =>
-        {
-            while (!serverProcess.HasExited)
-            {
-                var line = await serverProcess.StandardError
-                    .ReadLineAsync()
-                    .ConfigureAwait(false);
-
-                if (line is null)
-                    break;
-
-                Console.Error.WriteLine($"[llama-server] {line}");
-            }
-        });
-
-        return ValueTask.FromResult(serverProcess);
+        llamaCppProcess.Start();
+        return ValueTask.FromResult(llamaCppProcess);
     }
+
+    public ValueTask<bool> IsHostProcessRunningAsync() =>
+        ValueTask.FromResult(llamaCppProcess is not null);
 
     public void Dispose()
     {
-        try { llamaClient?.Dispose(); } catch { /* ignore */ }
         try
         {
-            if (!serverProcess.HasExited)
-                serverProcess.Kill(entireProcessTree: true);
+            if (!llamaCppProcess.HasExited)
+                llamaCppProcess.Kill(entireProcessTree: true);
         }
         catch { /* ignore */ }
         finally
         {
-            serverProcess?.Dispose();
+            llamaCppProcess?.Dispose();
         }
     }
 

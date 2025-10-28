@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using System.Text.Json.Serialization;
 using AIServer.Ollama;
 using AIServer.Ollama.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -24,9 +23,9 @@ public class OllamaChatController(
 
         chatClient.ModelId = modelId;
 
-        chatClient.Tools = await api
-            .GetFromJsonAsync<IEnumerable<IDictionary<string, object>>>(
-                "from-swagger-spec?websiteRootUri=https://localhost:7181/&fromPath=/api/tools");
+        //chatClient.Tools = await api
+        //    .GetFromJsonAsync<IEnumerable<IDictionary<string, object>>>(
+        //        "from-swagger-spec?websiteRootUri=https://localhost:7181/&fromPath=/api/tools");
 
         await Respond(chatClient.SendAsync(message));
     }

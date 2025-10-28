@@ -1,7 +1,7 @@
 ﻿using AIServer.LlamaCpp.Models;
 
 namespace AIServer.LlamaCpp.Foundations;
-public interface ILlamaCppService
+internal interface ILlamaCppService
 {
-    IAsyncEnumerable<string> SendPromptAsync(LlamaCppPrompt prompt);
+    IAsyncEnumerable<string> SendPromptAsync(List<Message> conversationHistory);
 }

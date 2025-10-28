@@ -4,9 +4,11 @@ namespace AIServer.Ollama;
 
 public static class IHostExtensions
 {
+    static IOllamaServiceHost serviceHost;
+
     public static async ValueTask StartOllamaAsync(this IHost host)
     {
-        var serviceHost = (IOllamaServiceHost)host.Services
+        serviceHost = (IOllamaServiceHost)host.Services
             .GetService(typeof(IOllamaServiceHost));
 
         IAsyncEnumerable<string> ollamaConsoleStream = 
@@ -15,4 +17,7 @@ public static class IHostExtensions
         await foreach (string consoleLine in ollamaConsoleStream)
             Console.WriteLine(consoleLine);
     }
+
+    public static async ValueTask StopOllamaAsync(this IHost host) =>
+        await serviceHost.StopAsync();
 }

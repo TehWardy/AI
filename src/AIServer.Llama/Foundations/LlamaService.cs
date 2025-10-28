@@ -13,8 +13,7 @@ internal class LlamaService : ILlamaService
 
     public IAsyncEnumerable<string> SendPromptAsync(ChatPrompt prompt)
     {
-        var llamaPrompt =
-            MapChatPromptToLlamaChatPrompt(prompt);
+        var llamaPrompt = MapChatPromptToLlamaChatPrompt(prompt);
 
         return llamaBroker.SendPromptAsync(llamaPrompt);
     }

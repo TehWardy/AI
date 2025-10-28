@@ -16,14 +16,11 @@ internal class LlamaCppService : ILlamaCppService
         this.llamaCppBroker = llamaCppBroker;
     }
 
-    public async IAsyncEnumerable<string> SendPromptAsync(LlamaCppPrompt prompt)
+    public async IAsyncEnumerable<string> SendPromptAsync(List<Message> conversationHistory)
     {
-        // Build a Llama-3 style chat prompt for /completion (so we get min_p/top_k/repeat_penalty support)
-        var compiledPrompt = Llama3Template.Compile(prompt.History);
-
         var request = new LlamaServerCompletionRequest
         {
-            Prompt = compiledPrompt,
+            Messages = conversationHistory,
             Stream = true,
             CachePrompt = true,
             Temperature = settings.Temperature,
@@ -31,26 +28,19 @@ internal class LlamaCppService : ILlamaCppService
             MinP = settings.MinP,
             TopK = settings.TopK,
             RepeatPenalty = settings.RepeatPenalty,
-
-            NPredict = settings.MaxTokens > 0
-                ? settings.MaxTokens
-                : 1024, // safety cap
-
-            Stop = settings.AntiPrompts.Length > 0
-                ? settings.AntiPrompts
-                : ["<|eot_id|>", "<|end|>", "<|user|>", "User:"]
+            NPredict = settings.MaxTokens,
+            Stop = settings.AntiPrompts
         };
 
-        using StreamReader reader = await llamaCppBroker
-            .SendCompletionRequestAsync(request);
-
-        var assistantBuilder = new StringBuilder();
+        using var response = await llamaCppBroker.SendCompletionRequestAsync(request); 
+        using var responseStream = await response.Content.ReadAsStreamAsync();
+        using var reader = new StreamReader(responseStream);
 
         while (!reader.EndOfStream)
         {
-            var line = await reader.ReadLineAsync().ConfigureAwait(false);
+            var line = await reader.ReadLineAsync();
 
-            if (line is null)
+            if (line is null || line == "data: [DONE]")
                 break;
 
             if (line.Length == 0 || line.StartsWith(":"))
@@ -60,46 +50,10 @@ internal class LlamaCppService : ILlamaCppService
                 continue;
 
             var payload = line.AsSpan(5).Trim(); // after "data:"
+            Token token = JsonSerializer.Deserialize<Token>(payload);
 
-            if (payload.SequenceEqual("[DONE]".AsSpan()))
-                break;
-
-            LlamaServerStreamChunk chunk = JsonSerializer
-                .Deserialize<LlamaServerStreamChunk>(payload);
-
-            if (chunk?.Content is { Length: > 0 } piece)
-            {
-                assistantBuilder.Append(piece);
-                yield return piece;
-            }
-
-            if (chunk?.Stop == true)
-                break;
+            if (token.Choices[0].Delta?.Content?.Length > 0)
+                yield return token.Choices[0].Delta.Content;
         }
-
-        var assistantText = assistantBuilder.ToString();
-        var trimmedContent = TrimAtStop(assistantText, settings.AntiPrompts);
-    }
-
-    static string TrimAtStop(string text, string[] stops)
-    {
-        if (stops == null || stops.Length == 0)
-            return text;
-
-        var idx = -1;
-
-        foreach (var s in stops)
-        {
-            var i = text.IndexOf(s, StringComparison.Ordinal);
-
-            if (i >= 0)
-                idx = idx < 0
-                    ? i
-                    : Math.Min(idx, i);
-        }
-
-        return idx >= 0
-            ? text[..idx]
-            : text;
     }
 }

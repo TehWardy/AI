@@ -11,9 +11,9 @@ public class OllamaModelHostBroker : IOllamaModelHostBroker
     public OllamaModelHostBroker(OllamaHostConfiguration config) =>
         this.config = config;
 
-    public async ValueTask<Process> CreateOllamaModelDownloadProcessAsync(string model)
+    public ValueTask<Process> CreateOllamaModelDownloadProcessAsync(string model)
     {
-        return new Process
+        var result = new Process
         {
             StartInfo = new ProcessStartInfo
             {
@@ -25,37 +25,38 @@ public class OllamaModelHostBroker : IOllamaModelHostBroker
                 CreateNoWindow = true
             }
         };
+
+        return ValueTask.FromResult(result);
     }
 
-    public async ValueTask<Process> CreateOllamaHostProcessAsync()
+    public ValueTask<Process> CreateOllamaHostProcessAsync()
     {
-        ollamaHostProcess = new Process
+        var start = new ProcessStartInfo
         {
-            StartInfo = new ProcessStartInfo
-            {
-                EnvironmentVariables =
-                {
-                    { "OLLAMA_HOST", config.OllamaHostUrl },
-                    { "OLLAMA_MODELS", config.OllamaModelsPath }
-                },
-                FileName = config.OllamaExePath,
-                Arguments = "serve",
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                CreateNoWindow = true
-            }
+            FileName = config.OllamaExePath,
+            Arguments = "serve",
+            WorkingDirectory = Path.GetDirectoryName(config.OllamaExePath),
+            UseShellExecute = false,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            CreateNoWindow = true
         };
 
-        return ollamaHostProcess;
+        start.EnvironmentVariables["OLLAMA_HOST"] = config.OllamaHostUrl;
+        start.EnvironmentVariables["OLLAMA_MODELS"] = config.OllamaModelsPath;
+
+        ollamaHostProcess = new Process { StartInfo = start };
+
+        return ValueTask.FromResult(ollamaHostProcess);
     }
 
-    public async ValueTask StopOllamaHostProcessAsync()
+    public ValueTask StopOllamaHostProcessAsync()
     {
         ollamaHostProcess.Kill();
         ollamaHostProcess.Dispose();
+        return ValueTask.CompletedTask;
     }
 
-    public async ValueTask<bool> IsHostProcessRunningAsync() => 
-        ollamaHostProcess is not null;
+    public ValueTask<bool> IsHostProcessRunningAsync() => 
+        ValueTask.FromResult(ollamaHostProcess is not null);
 }

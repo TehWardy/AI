@@ -6,5 +6,5 @@ public interface ILlamaCppChatClient
     List<Message> History { get; set; }
     string ModelId { get; set; }
 
-    IAsyncEnumerable<string> SendAsync(string userMessage);
+    IAsyncEnumerable<ResponseToken> SendAsync(string userMessage);
 }

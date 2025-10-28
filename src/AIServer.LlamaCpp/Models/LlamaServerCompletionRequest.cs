@@ -4,8 +4,8 @@ namespace AIServer.LlamaCpp.Models;
 
 internal class LlamaServerCompletionRequest
 {
-    [JsonPropertyName("prompt")]
-    public string Prompt { get; set; }
+    [JsonPropertyName("messages")]
+    public List<Message> Messages { get; set; }
 
     [JsonPropertyName("n_predict")]
     public int NPredict { get; set; } = 512;

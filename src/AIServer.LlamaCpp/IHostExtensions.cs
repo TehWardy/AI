@@ -1,18 +1,27 @@
-﻿using System.Diagnostics;
-using AIServer.LlamaCpp.Foundations;
+﻿using AIServer.LlamaCpp.Foundations;
 using Microsoft.Extensions.Hosting;
 
 namespace AIServer.LlamaCpp;
 
 public static class IHostExtensions
 {
-    static Process hostProcess;
+    static ILlamaCppHostService serviceHost;
 
     public static async ValueTask StartLlamaHostAsync(this IHost host, string modelName)
     {
-        var serviceHost = (ILlamaCppHostService)host.Services
-            .GetService(typeof(ILlamaCppHostService));
+        if (serviceHost is null)
+        {
+            serviceHost = (ILlamaCppHostService)host.Services
+                .GetService(typeof(ILlamaCppHostService));
 
-        hostProcess = await serviceHost.StartAsync(modelName);
+            IAsyncEnumerable<string> llamaCppConsoleStream =
+                serviceHost.StartAsync(modelName);
+
+            await foreach (string consoleLine in llamaCppConsoleStream)
+                Console.WriteLine(consoleLine);
+        }
     }
+
+    public static ValueTask StopLlamaHostAsync(this IHost host) =>
+        serviceHost.StopAsync();
 }

@@ -9,13 +9,4 @@ public class MessageData
 
     [JsonPropertyName("content")]
     public string Content { get; set; }
-
-    [JsonPropertyName("thinking")]
-    public string Thought { get; set; }
-
-    [JsonPropertyName("tool_name")]
-    public string ToolName { get; set; }
-
-    [JsonPropertyName("tool_calls")]
-    public ToolCallDetails[] ToolCalls { get; set; }
 }

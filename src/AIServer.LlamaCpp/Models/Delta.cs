@@ -2,11 +2,8 @@
 
 namespace AIServer.LlamaCpp.Models;
 
-internal class LlamaServerStreamChunk
+internal class Delta
 {
     [JsonPropertyName("content")] 
     public string Content { get; set; }
-
-    [JsonPropertyName("stop")] 
-    public bool? Stop { get; set; }
 }

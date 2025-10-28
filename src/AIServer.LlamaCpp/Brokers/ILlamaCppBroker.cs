@@ -3,5 +3,5 @@
 namespace AIServer.LlamaCpp.Brokers;
 internal interface ILlamaCppBroker
 {
-    ValueTask<StreamReader> SendCompletionRequestAsync(LlamaServerCompletionRequest request);
+    ValueTask<HttpResponseMessage> SendCompletionRequestAsync(LlamaServerCompletionRequest request);
 }

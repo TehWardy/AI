@@ -10,11 +10,11 @@ public sealed class LlamaChatClient : ILlamaChatClient
     public LlamaChatClient(ILlamaService llamaService) =>
         this.llamaService = llamaService;
 
-    public async ValueTask InitializeChatSession(string modelName)
+    public async ValueTask InitializeChatSession(string modelName, string systemPrompt)
     {
         await llamaService.InitializeChatSession(
             modelName,
-            "You are a concise assistant. keep your answers to user prompts short.");
+            systemPrompt);
     }
 
     public IAsyncEnumerable<string> SendAsync(string userMessage)

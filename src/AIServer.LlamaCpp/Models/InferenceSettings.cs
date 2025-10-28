@@ -8,5 +8,5 @@ internal class InferenceSettings
     public float MinP { get; set; } = 0.05f;
     public int TopK { get; set; } = 40;
     public float RepeatPenalty { get; set; } = 1.1f;
-    public string[] AntiPrompts { get; set; } = ["<|user|>", "<|end|>", "User:"];
+    public string[] AntiPrompts { get; set; } = []; // ["<|user|>", "<|end|>", "User:"];
 }

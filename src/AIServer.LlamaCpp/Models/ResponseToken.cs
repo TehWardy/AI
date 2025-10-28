@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace AIServer.Ollama.Models;
+namespace AIServer.LlamaCpp.Models;
 
 public class ResponseToken
 {
@@ -15,7 +15,4 @@ public class ResponseToken
 
     [JsonPropertyName("done")]
     public bool Done { get; set; }
-
-    [JsonPropertyName("tool_calls")]
-    public ToolCallDetails[] ToolCalls { get; set; }
 }
