@@ -1,6 +1,7 @@
 ﻿using AIServer.Llama.Brokers;
 using AIServer.Llama.Configurations;
 using AIServer.Llama.Foundations;
+using AIServer.Llama.Processings;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AIServer.Llama;
@@ -22,6 +23,9 @@ public static class IServiceCollectionExtentions
 
         // Foundations
         services.AddTransient<ILlamaService, LlamaService>();
+
+        // Processings
+        services.AddTransient<ILlamaProcessingService, LlamaProcessingService>();
 
         // Exposures
         services.AddTransient<ILlamaChatClient, LlamaChatClient>();

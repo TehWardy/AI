@@ -16,7 +16,10 @@ internal class LlamaCppProcessingService : ILlamaCppProcessingService
 
         await foreach (string rawToken in llamaCppService.SendPromptAsync(conversationHistory))
         {
-            if (channel is null || channel == "<|channel|>")
+            if (channel is null)
+                channel = rawToken;
+
+            if (channel == "<|channel|>")
             {
                 channel = rawToken;
                 continue;

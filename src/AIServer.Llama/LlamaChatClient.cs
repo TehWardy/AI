@@ -1,13 +1,14 @@
 using AIServer.Llama.Foundations;
 using AIServer.Llama.Models;
+using AIServer.Llama.Processings;
 
 namespace AIServer.Llama;
 
 public sealed class LlamaChatClient : ILlamaChatClient
 {
-    private readonly ILlamaService llamaService;
+    private readonly ILlamaProcessingService llamaService;
 
-    public LlamaChatClient(ILlamaService llamaService) =>
+    public LlamaChatClient(ILlamaProcessingService llamaService) =>
         this.llamaService = llamaService;
 
     public async ValueTask InitializeChatSession(string modelName, string systemPrompt)

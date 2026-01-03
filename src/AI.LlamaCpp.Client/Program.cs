@@ -1,7 +1,7 @@
-﻿using AIServer.LlamaCpp;
+﻿using AI.LlamaCpp.Client;
+using AIServer.LlamaCpp;
 using AIServer.LlamaCpp.Models;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 var config = new ConfigurationBuilder()
@@ -16,7 +16,10 @@ builder.Services.AddLlamaCpp(llamaCppConfig =>
 });
 
 IHost host = builder.Build();
-await host.StartLlamaHostAsync("gpt-oss-20b-mxfp4"); 
+//IAsyncEnumerable<string> initStream = host.StartLlamaHostAsync("Mistral-7B-Instruct-v0.3.Q8_0");
+
+//await foreach (string initLine in initStream)
+//    Console.WriteLine(initLine);
 
 Console.ForegroundColor = ConsoleColor.DarkGray;
 Console.Write($"\n[{DateTime.Now:HH:mm:ss}] ");
@@ -26,8 +29,7 @@ Console.Write("Assistant: ");
 Console.ForegroundColor = ConsoleColor.Yellow;
 Console.WriteLine("Hello, I am a helpfull AI assistant, how can I help you today?");
 
-ILlamaCppChatClient chatClient = host.Services
-    .GetRequiredService<ILlamaCppChatClient>();
+AgenticConversation chatClient = new(host.Services);
 
 while (true)
 {
@@ -42,7 +44,10 @@ while (true)
     string nextPrompt = Console.ReadLine()?.Trim();
 
     if (nextPrompt == "exit")
+    {
+        await host.StopLlamaHostAsync();
         break;
+    }
 
     if (string.IsNullOrEmpty(nextPrompt))
         continue; // skip empty lines
@@ -59,10 +64,7 @@ while (true)
 
     // Start streaming tokens
     await foreach (ResponseToken token in chatClient.SendAsync(nextPrompt))
-        Console.Write(token.Message.Content);
+        Console.Write(token.Message.Thought ?? token.Message.Content);
 
     Console.WriteLine();
 }
-
-await host.StopLlamaHostAsync();
-await host.StopAsync();

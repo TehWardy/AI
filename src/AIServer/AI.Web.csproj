@@ -11,10 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AIServer.Llama\AIServer.Llama.csproj" />
-    <ProjectReference Include="..\AIServer.MCPTools.IG\AIServer.MCPTools.IG.csproj" />
     <ProjectReference Include="..\AIServer.MCPTools\AIServer.MCPTools.csproj" />
-    <ProjectReference Include="..\AIServer.Memory\AIServer.Memory.csproj" />
     <ProjectReference Include="..\AIServer.Ollama\AIServer.Ollama.csproj" />
   </ItemGroup>
 </Project>

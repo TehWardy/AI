@@ -36,24 +36,23 @@ internal class LlamaCppService : ILlamaCppService
         using var responseStream = await response.Content.ReadAsStreamAsync();
         using var reader = new StreamReader(responseStream);
 
+        string tokenContent;
+
         while (!reader.EndOfStream)
         {
-            var line = await reader.ReadLineAsync();
+            var line = (await reader.ReadLineAsync())?.TrimStart("data: ".ToArray());
 
-            if (line is null || line == "data: [DONE]")
+            if (line is null || line == "[DONE]")
                 break;
 
-            if (line.Length == 0 || line.StartsWith(":"))
-                continue; // keep-alives/comments
-
-            if (!line.StartsWith("data:"))
+            if (line.Length == 0)
                 continue;
 
-            var payload = line.AsSpan(5).Trim(); // after "data:"
-            Token token = JsonSerializer.Deserialize<Token>(payload);
+            Token token = JsonSerializer.Deserialize<Token>(line);
+            tokenContent = token.Choices[0]?.Delta?.Content;
 
-            if (token.Choices[0].Delta?.Content?.Length > 0)
-                yield return token.Choices[0].Delta.Content;
+            if(tokenContent is not null)
+                yield return token.Choices[0]?.Delta?.Content;
         }
     }
 }

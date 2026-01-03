@@ -43,7 +43,8 @@
     }
 
     async function sendMessageToServer(message) {
-        let response = await fetch('api/chat/ollama/gpt-oss:20b/123', {
+        //let response = await fetch('api/chat/ollama/gpt-oss:20b/123', {
+        let response = await fetch('api/chat/ollama/mistral/123', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

@@ -10,16 +10,16 @@ var config = new ConfigurationBuilder()
 
 var builder = Host.CreateApplicationBuilder(args);
 
-builder.Services.AddOllamaHost(
-    config.GetValue<string>("AI.OllamaExe"), 
-    1234, 
-    config.GetValue<string>("AI.OllamaModelsPath"));
+//builder.Services.AddOllamaHost(
+//    config.GetValue<string>("AI.OllamaExe"), 
+//    1234, 
+//    config.GetValue<string>("AI.OllamaModelsPath"));
 
 builder.Services.AddOllamaClient(
     config.GetValue<string>("AI.OllamaService"));
 
 IHost host = builder.Build();
-await host.StartOllamaAsync();
+//await host.StartOllamaAsync();
 
 Console.ForegroundColor = ConsoleColor.DarkGray;
 Console.Write($"\n[{DateTime.Now:HH:mm:ss}] ");
@@ -27,10 +27,13 @@ Console.Write($"\n[{DateTime.Now:HH:mm:ss}] ");
 Console.ForegroundColor = ConsoleColor.Green;
 Console.Write("Assistant: ");
 Console.ForegroundColor = ConsoleColor.Yellow;
-Console.WriteLine("Hello, I am a helpfull AI assistant, how can I help you today?");
+Console.WriteLine("Hello, I am a helpful AI assistant, how can I help you today?");
 
 IOllamaChatClient chatClient = host.Services
     .GetRequiredService<IOllamaChatClient>();
+
+chatClient.ModelId = "mistral";
+chatClient.AddSystemPrompt(prompt: null);
 
 while (true)
 {

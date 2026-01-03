@@ -3,7 +3,7 @@ using AIServer.LlamaCpp.Configurations;
 
 namespace AIServer.LlamaCpp.Brokers;
 
-internal sealed partial class LlamaCppHostBroker : ILlamaCppHostBroker
+internal sealed class LlamaCppHostBroker : ILlamaCppHostBroker
 {
     private Process llamaCppProcess = null;
     private readonly LlamaCppConfiguration config;
@@ -21,26 +21,29 @@ internal sealed partial class LlamaCppHostBroker : ILlamaCppHostBroker
         if (!File.Exists(modelPath))
             throw new FileNotFoundException($"Model not found at: {modelPath}");
 
-        var args = new[]
+        var startInfo = new ProcessStartInfo
         {
-            "-m", $"\"{modelPath}\"",
-            "--port", config.ServerPort.ToString(),
-            "-c", config.ContextSize.ToString(),
-            "-ngl", config.GpuLayerCount.ToString()
+            FileName = llamaServerExePath,
+            WorkingDirectory = Path.GetDirectoryName(llamaServerExePath),
+            UseShellExecute = false,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            CreateNoWindow = true
         };
+
+        startInfo.ArgumentList.Add("-m");
+        startInfo.ArgumentList.Add(modelPath);
+        startInfo.ArgumentList.Add("--port");
+        startInfo.ArgumentList.Add(config.ServerPort.ToString());
+        startInfo.ArgumentList.Add("-c");
+        startInfo.ArgumentList.Add(config.ContextSize.ToString());
+        startInfo.ArgumentList.Add("-ngl");
+        startInfo.ArgumentList.Add(config.GpuLayerCount.ToString());
 
         // Start server
         llamaCppProcess = new Process
         {
-            StartInfo = new ProcessStartInfo
-            {
-                FileName = llamaServerExePath,
-                Arguments = string.Join(" ", args),
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                CreateNoWindow = true
-            },
+            StartInfo = startInfo,
             EnableRaisingEvents = true
         };
 

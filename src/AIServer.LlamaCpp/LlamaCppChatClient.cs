@@ -7,7 +7,7 @@ public class LlamaCppChatClient : ILlamaCppChatClient
 {
     private readonly ILlamaCppProcessingService chatService;
 
-    public string ModelId { get; set; } = "gpt-oss:20b";
+    public string ModelId { get; set; } = string.Empty; //"gpt-oss:20b";
     public List<Message> History { get; set; } = [];
 
     public LlamaCppChatClient(ILlamaCppProcessingService chatService) =>
@@ -15,9 +15,6 @@ public class LlamaCppChatClient : ILlamaCppChatClient
 
     public async IAsyncEnumerable<ResponseToken> SendAsync(string userMessage)
     {
-        if (!History.Any())
-            AddSystemPrompt();
-
         var userPrompt = new Message
         {
             Role = "user",
@@ -41,12 +38,12 @@ public class LlamaCppChatClient : ILlamaCppChatClient
         History.Add(responseMessage);
     }
 
-    void AddSystemPrompt()
+    public void SetSystemPrompt(string prompt)
     {
         Message systemPrompt = new Message
         {
             Role = "system",
-            Content = "You are a concise and helpful assistant."
+            Content = prompt ?? "You are a concise and helpful assistant."
         };
 
         History.Add(systemPrompt);

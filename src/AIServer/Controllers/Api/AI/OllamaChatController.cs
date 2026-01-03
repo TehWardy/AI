@@ -7,8 +7,7 @@ namespace AIServer.Controllers.Api.AI;
 
 [Route("api/chat/ollama/")]
 public class OllamaChatController(
-    IOllamaChatClient chatClient) 
-        : ChatController
+    IOllamaChatClient chatClient) : Controller
 {
     [HttpPost("{modelId}/{id}")]
     public async Task PostAsync(
@@ -16,10 +15,10 @@ public class OllamaChatController(
         [FromRoute] string id,
         [FromBody] string message)
     {
-        var api = new HttpClient()
-        {
-            BaseAddress = new Uri("https://localhost:7181/api/tools/")
-        };
+        //var api = new HttpClient()
+        //{
+        //    BaseAddress = new Uri("https://localhost:7181/api/tools/")
+        //};
 
         chatClient.ModelId = modelId;
 

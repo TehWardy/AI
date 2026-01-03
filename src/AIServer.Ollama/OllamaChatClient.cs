@@ -7,7 +7,7 @@ public class OllamaChatClient : IOllamaChatClient
 {
     private readonly IOllamaConversationOrchestrationService converstionService;
 
-    public string ModelId { get; set; } = "gpt-oss:20b";
+    public string ModelId { get; set; }
     public List<MessageData> history { get; set; } = [];
 
     public OllamaChatClient(IOllamaConversationOrchestrationService converstionService) =>
@@ -15,9 +15,6 @@ public class OllamaChatClient : IOllamaChatClient
 
     public IAsyncEnumerable<ResponseToken> SendAsync(string userMessage)
     {
-        if (!history.Any())
-            AddSystemPrompt();
-
         if (userMessage is not null)
             history.Add(new MessageData { Role = "user", Content = userMessage });
 
@@ -36,12 +33,12 @@ public class OllamaChatClient : IOllamaChatClient
         return converstionService.SendPromptAsync(prompt);
     }
 
-    void AddSystemPrompt()
+    public void AddSystemPrompt(string prompt)
     {
         MessageData systemPrompt = new MessageData
         {
             Role = "system",
-            Content = "You are a concise and helpful assistant."
+            Content = prompt ?? "You are a concise and helpful assistant."
         };
 
         history.Add(systemPrompt);

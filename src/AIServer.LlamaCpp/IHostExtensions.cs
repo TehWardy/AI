@@ -7,7 +7,7 @@ public static class IHostExtensions
 {
     static ILlamaCppHostService serviceHost;
 
-    public static async ValueTask StartLlamaHostAsync(this IHost host, string modelName)
+    public static async IAsyncEnumerable<string> StartLlamaHostAsync(this IHost host, string modelName)
     {
         if (serviceHost is null)
         {
@@ -18,10 +18,16 @@ public static class IHostExtensions
                 serviceHost.StartAsync(modelName);
 
             await foreach (string consoleLine in llamaCppConsoleStream)
-                Console.WriteLine(consoleLine);
+                yield return consoleLine;
         }
     }
 
-    public static ValueTask StopLlamaHostAsync(this IHost host) =>
-        serviceHost.StopAsync();
+    public static async ValueTask StopLlamaHostAsync(this IHost host)
+    {
+        if (serviceHost is not null)
+        {
+            await serviceHost.StopAsync();
+            serviceHost = null;
+        }
+    }
 }
