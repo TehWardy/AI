@@ -73,8 +73,10 @@ internal class AgenticConversationCoordinationService(
             {
                 firstToken = false;
 
+                string trimmedContent = token.Content.TrimStart();
+
                 potentialToolStateUpate = 
-                    token.Content.StartsWith("`") || token.Content.StartsWith("{");
+                    trimmedContent.StartsWith("`") || trimmedContent.StartsWith("{");
             }
 
             if(potentialToolStateUpate)
