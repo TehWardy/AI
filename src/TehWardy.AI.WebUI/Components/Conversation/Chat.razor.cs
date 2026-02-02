@@ -116,19 +116,6 @@ public partial class Chat : ComponentBase
         StateHasChanged();
     }
 
-    async Task OpenToolStub()
-    {
-        var tool = new ToolState
-        {
-            ToolName = "ArchitectureDesigner",
-            InstanceId = Guid.NewGuid(),
-            Title = "Architecture Designer",
-            State = new { }
-        };
-
-        await OnToolOpenRequested.InvokeAsync(tool);
-    }
-
     async Task HandleKeyDown(KeyboardEventArgs e)
     {
         if (e.Key == "Enter" && !e.ShiftKey)
