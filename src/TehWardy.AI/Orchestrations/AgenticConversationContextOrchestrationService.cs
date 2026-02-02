@@ -25,7 +25,18 @@ internal class AgenticConversationContextOrchestrationService(
         Conversation conversation = await conversationService
             .RetrieveConversationByIdAsync(prompt.ConversationId);
 
-        conversation.History.Add(new ChatMessage { Role = "user", Message = prompt.Input });
+        ChatMessage lastMessage = conversation.History.Count > 0
+            ? conversation.History[^1]
+            : null;
+
+        if (lastMessage?.Role != "user" || lastMessage.Message != prompt.Input)
+        {
+            conversation.History.Add(new ChatMessage
+            {
+                Role = "user",
+                Message = prompt.Input
+            });
+        }
 
         return new ConversationContext
         {

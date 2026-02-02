@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using System.Text.Json;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using TehWardy.AI.WebUI.Foundations;
 using TehWardy.AI.WebUI.Models;
@@ -97,7 +98,10 @@ public partial class Chat : ComponentBase
             }
             else if (token.Thought == "Tool State Update")
             {
-                await OnNewToolStateFromAssistant.InvokeAsync(token.Content);
+                if (TryExtractToolStateJson(token.Content, out string toolStateJson))
+                {
+                    await OnNewToolStateFromAssistant.InvokeAsync(toolStateJson);
+                }
             }
             else
             {
@@ -129,5 +133,112 @@ public partial class Chat : ComponentBase
     {
         if (e.Key == "Enter" && !e.ShiftKey)
             await SendAsync();
+    }
+
+    private static bool TryExtractToolStateJson(string content, out string toolStateJson)
+    {
+        toolStateJson = null;
+
+        if (string.IsNullOrWhiteSpace(content))
+            return false;
+
+        string trimmed = StripCodeFences(content.Trim());
+
+        if (TryNormalizeJson(trimmed, out toolStateJson))
+            return true;
+
+        int startIndex = trimmed.IndexOf('{');
+
+        if (startIndex < 0)
+            return false;
+
+        int depth = 0;
+        bool inString = false;
+        bool escaped = false;
+        int endIndex = -1;
+
+        for (int i = startIndex; i < trimmed.Length; i++)
+        {
+            char current = trimmed[i];
+
+            if (escaped)
+            {
+                escaped = false;
+                continue;
+            }
+
+            if (current == '\\' && inString)
+            {
+                escaped = true;
+                continue;
+            }
+
+            if (current == '"')
+            {
+                inString = !inString;
+                continue;
+            }
+
+            if (!inString)
+            {
+                if (current == '{')
+                {
+                    depth++;
+                }
+                else if (current == '}')
+                {
+                    depth--;
+
+                    if (depth == 0)
+                    {
+                        endIndex = i;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (endIndex < 0)
+            return false;
+
+        string jsonCandidate = trimmed.Substring(startIndex, endIndex - startIndex + 1);
+
+        return TryNormalizeJson(jsonCandidate, out toolStateJson);
+    }
+
+    private static string StripCodeFences(string content)
+    {
+        if (!content.StartsWith("```"))
+            return content;
+
+        int firstNewline = content.IndexOf('\n');
+
+        if (firstNewline < 0)
+            return content;
+
+        string withoutOpeningFence = content[(firstNewline + 1)..];
+
+        int closingFenceIndex = withoutOpeningFence.LastIndexOf("```", StringComparison.Ordinal);
+
+        if (closingFenceIndex < 0)
+            return withoutOpeningFence.Trim();
+
+        return withoutOpeningFence[..closingFenceIndex].Trim();
+    }
+
+    private static bool TryNormalizeJson(string candidate, out string normalizedJson)
+    {
+        normalizedJson = null;
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(candidate);
+            normalizedJson = JsonSerializer.Serialize(document.RootElement);
+            return true;
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
     }
 }
