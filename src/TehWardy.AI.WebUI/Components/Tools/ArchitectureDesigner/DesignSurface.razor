@@ -1,0 +1,57 @@
+﻿@using TehWardy.AI.WebUI.Models.Tools.ArchitectureDesigner
+@using TehWardy.AI.WebUI.Components.Tools.ArchitectureDesigner
+
+<div class="designer">
+    <svg class="designer-svg"
+         xmlns="http://www.w3.org/2000/svg"
+         xmlns:svg="http://www.w3.org/2000/svg"
+         viewBox="0 0 @ComputedLayout.Width @ComputedLayout.Height"
+         preserveAspectRatio="xMinYMin meet">
+
+        <defs>
+            <marker id="arrow" markerWidth="10" markerHeight="10" refX="10" refY="5" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" class="edge-arrow"></path>
+            </marker>
+        </defs>
+
+        <!-- Edges -->
+        @foreach (var edge in Diagram.Edges)
+        {
+            if (!ComputedLayout.Nodes.TryGetValue(edge.FromNodeId, out var from) ||
+            !ComputedLayout.Nodes.TryGetValue(edge.ToNodeId, out var to))
+            {
+                continue;
+            }
+
+            var path = BuildElbowPath(from, to);
+
+            <path d="@path"
+                  class="@GetEdgeCss(edge)"
+                  marker-end="url(#arrow)" />
+        }
+
+        <!-- Nodes -->
+        @foreach (var node in Diagram.Nodes)
+        {
+            if (!ComputedLayout.Nodes.TryGetValue(node.Id, out var rect))
+            {
+                continue;
+            }
+
+            <g transform="translate(@rect.X @rect.Y)" class="@GetNodeCss(node)">
+                <rect width="@rect.W" height="@rect.H" rx="12" ry="12" class="node-rect"></rect>
+
+                <svg:text x="14" y="28" class="node-title">@node.Name</svg:text>
+
+                @if (node.Kind == DiagramNodeKind.Component && node.Role.HasValue)
+                {
+                    <svg:text x="14" y="48" class="node-subtitle">@node.Role.Value</svg:text>
+                }
+                else if (node.Kind == DiagramNodeKind.External)
+                {
+                    <svg:text x="14" y="48" class="node-subtitle">External</svg:text>
+                }
+            </g>
+        }
+    </svg>
+</div>

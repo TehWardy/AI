@@ -1,0 +1,21 @@
+﻿<div class="conversation-list px-2 py-2">
+    <button class="navbar-toggler btn btn-sm btn-outline-light w-100 text-start mb-2"
+            @onclick="ToggleNavMenu">
+        <span class="me-2">☰</span>
+        Conversation List
+    </button>
+
+    <div class="@NavMenuCssClass">
+        <nav class="nav flex-column">
+            <NavLink class="nav-link sidebar-item"
+                     href="Conversation/00000000-0000-0000-0000-000000000001">
+                CMS Build – Draft
+            </NavLink>
+
+            <NavLink class="nav-link sidebar-item"
+                     href="Conversation/00000000-0000-0000-0000-000000000002">
+                FTSE 100 – Overview
+            </NavLink>
+        </nav>
+    </div>
+</div>

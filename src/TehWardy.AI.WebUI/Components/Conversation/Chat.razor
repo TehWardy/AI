@@ -1,0 +1,53 @@
+﻿@using TehWardy.AI.WebUI.Models
+
+<div class="shell">
+    <div class="transcript">
+        @if (Conversation?.History is not null)
+        {
+            foreach (var message in Conversation.History)
+            {
+                var isUser = message.Role == "user";
+
+                <div class="message @(isUser ? "user" : "assistant")">
+                    <div class="role">@message.Role</div>
+
+                    @if (!string.IsNullOrWhiteSpace(message.Thought))
+                    {
+                        <div class="bubble thought">@message.Thought</div>
+                    }
+
+                    @if (!string.IsNullOrWhiteSpace(message.Message))
+                    {
+                        <div class="bubble message-content">@message.Message</div>
+                    }
+                </div>
+            }
+        }
+        else
+        {
+            <div class="message assistant">
+                <div class="role">Assistant</div>
+                <div class="bubble">Loading conversation …</div>
+            </div>
+        }
+
+    </div>
+
+    <div class="composer border-top p-2">
+        <div class="input-group">
+            <input class="form-control"
+                   placeholder="Reply ..."
+                   @bind="UserInput"
+                   @bind:event="oninput"
+                   @onkeydown="HandleKeyDown" />
+
+            <button class="btn btn-primary" @onclick="SendAsync">
+                Send
+            </button>
+
+            <button class="btn btn-outline-secondary" @onclick="OpenToolStub">
+                Open Tool (test)
+            </button>
+        </div>
+    </div>
+</div>

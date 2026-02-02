@@ -1,0 +1,22 @@
+﻿@using TehWardy.AI.WebUI.Models
+
+<div class="card card-surface">
+    <div class="card-body">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <div>
+                <h5 class="card-title mb-1">Architecture Designer</h5>
+                <div class="text-muted">
+                    Instance: <code>@ToolState.InstanceId</code>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-light" @onclick="LoadSample">Load sample</button>
+                <button class="btn btn-sm btn-outline-light" @onclick="AutoLayout">Auto-layout</button>
+            </div>
+        </div>
+
+        <DesignSurface Diagram="Diagram" ComputedLayout="Layout" />
+
+    </div>
+</div>

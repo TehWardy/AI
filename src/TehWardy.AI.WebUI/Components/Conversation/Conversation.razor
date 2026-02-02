@@ -1,0 +1,30 @@
+﻿@using TehWardy.AI.WebUI.Models
+
+<div class="conversation-shell">
+    <div class="conversation-grid @(ToolState is null ? "no-tool" : "with-tool")">
+
+        <section class="conversation-chat">
+            @if (ConversationId == Guid.Empty)
+            {
+                <Welcome OnUserInput="HandleNewConversationStart" />
+            }
+            else
+            {
+                <Chat @ref="Chat" OnToolOpenRequested="HandleToolOpenRequested"
+                      OnToolCloseRequested="HandleToolCloseRequested"
+                      OnNewToolStateFromAssistant="HandleNewToolStateFromAssistant"
+                      ConversationId="@ConversationId" />
+            }
+        </section>
+
+        @if (ToolState is not null)
+        {
+            <section class="conversation-tool border-start">
+                <ToolHost @ref="ToolHost" 
+                          ToolState="ToolState"
+                          OnClose="HandleToolCloseRequested"
+                          OnToolStateChanged="HandleToolStateChanged" />
+            </section>
+        }
+    </div>
+</div>

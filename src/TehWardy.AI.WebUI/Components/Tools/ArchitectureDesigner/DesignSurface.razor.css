@@ -1,0 +1,71 @@
+﻿.designer {
+    width: 100%;
+    height: 640px;
+    border: 1px solid var(--app-border);
+    border-radius: 12px;
+    overflow: hidden;
+    background: rgba(0,0,0,0.10);
+}
+
+.designer-svg {
+    width: 100%;
+    height: 100%;
+}
+
+.node-rect {
+    stroke: var(--app-border);
+    stroke-width: 1;
+}
+
+.node-title {
+    font-size: 14px;
+    font-weight: 600;
+    fill: var(--app-text);
+}
+
+.node-subtitle {
+    font-size: 12px;
+    fill: var(--app-text-muted);
+}
+
+.edge {
+    fill: none;
+    stroke-width: 2;
+    opacity: 0.9;
+}
+
+.edge-inprocess {
+    stroke: rgba(140, 200, 255, 0.9);
+}
+
+.edge-external {
+    stroke: rgba(160, 255, 160, 0.9);
+}
+
+.edge-arrow {
+    fill: rgba(140, 200, 255, 0.9);
+}
+
+/* Node themes (approximate your palette) */
+.node-root .node-rect {
+    fill: rgba(120, 180, 120, 0.35);
+}
+
+.node-orchestration .node-rect,
+.node-processing .node-rect,
+.node-service .node-rect {
+    fill: rgba(120, 180, 120, 0.22);
+}
+
+.node-broker .node-rect {
+    fill: rgba(120, 180, 120, 0.18);
+}
+
+.node-model .node-rect {
+    fill: rgba(50, 120, 60, 0.35);
+}
+
+.node-external .node-rect {
+    fill: rgba(80, 120, 180, 0.25);
+    stroke-dasharray: 4 4;
+}

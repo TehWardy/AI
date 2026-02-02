@@ -1,0 +1,12 @@
+﻿@page "/"
+@page "/Conversation/{ConversationId:guid}"
+@using TehWardy.AI.WebUI.Components.Conversation
+
+<PageTitle>Chat</PageTitle>
+
+<Conversation ConversationId="ConversationId ?? Guid.Empty" />
+
+@code {
+    [Parameter] 
+    public Guid? ConversationId { get; set; }
+}

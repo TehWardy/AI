@@ -1,0 +1,7 @@
+﻿.header {
+    border-bottom-color: var(--app-border) !important;
+}
+
+.shell {
+    background: rgba(255, 255, 255, 0.01);
+}

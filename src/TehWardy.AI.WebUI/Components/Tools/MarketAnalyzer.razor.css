@@ -1,0 +1,9 @@
+﻿.card-surface {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: var(--app-border);
+    color: var(--app-text);
+}
+
+.text-muted {
+    color: var(--app-text-muted) !important;
+}

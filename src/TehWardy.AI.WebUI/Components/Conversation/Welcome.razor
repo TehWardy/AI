@@ -1,0 +1,45 @@
+﻿<div class="welcome">
+    <div class="welcome-inner">
+        <div class="welcome-card">
+            <div class="welcome-title">Welcome to TehWardy.AI</div>
+            <div class="welcome-subtitle text-muted">
+                Local-first agent workflows for building software and running analyses.
+            </div>
+
+            <div class="welcome-chips">
+                <button type="button" class="chip" @onclick="OnSuggestionCms">
+                    Build a Content Management System
+                </button>
+
+                <button type="button" class="chip" @onclick="OnSuggestionArchitecture">
+                    Software Architecture planning
+                </button>
+
+                <button type="button" class="chip" @onclick="OnSuggestionFtse">
+                    FTSE 100 overview
+                </button>
+            </div>
+
+            <div class="welcome-composer">
+                <div class="input-group input-group-lg">
+                    <input class="form-control welcome-input"
+                           placeholder="What would you like to do today?"
+                           @bind-value="UserInput"
+                           @bind-value:event="oninput"
+                           @onkeydown="HandleKeyDown" />
+
+                    <button type="button"
+                            class="btn btn-primary"
+                            @onclick="SendAsync"
+                            disabled="@IsSendDisabled">
+                        Start
+                    </button>
+                </div>
+
+                <div class="welcome-hint text-muted">
+                    Press <kbd>Enter</kbd> to start • <kbd>Shift</kbd> + <kbd>Enter</kbd> for a new line
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

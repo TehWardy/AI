@@ -1,0 +1,29 @@
+﻿@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Rendering
+@using TehWardy.AI.WebUI.Components.Tools
+
+<div class="d-flex flex-column h-100">
+    <div class="d-flex align-items-center justify-content-between px-3 py-2 border-bottom">
+        <div class="fw-semibold">@Title</div>
+        <button class="btn btn-sm btn-outline-secondary" @onclick="OnClose">Close</button>
+    </div>
+
+    <div class="flex-grow-1 overflow-auto p-3">
+        @if (ToolState is null)
+        {
+            <div class="text-muted">No tool selected.</div>
+        }
+        else if (ToolComponentType is null)
+        {
+            <div class="alert alert-warning mb-0">
+                Unknown tool: <strong>@ToolState.ToolName</strong>
+            </div>
+        }
+        else
+        {
+            <ToolRenderer ToolType="ToolComponentType"
+                          Parameters="ToolParameters"
+                          OnToolInstanceAvailable="CaptureToolInstance" />
+        }
+    </div>
+</div>

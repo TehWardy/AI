@@ -1,0 +1,112 @@
+:root {
+    /* Brand / layout */
+    --app-bg: #0b1020;
+    --app-surface: #0f172a;
+    --app-surface-2: #111c36;
+    --app-border: rgba(255, 255, 255, 0.10);
+    /* Text */
+    --app-text: #CCC;
+    --app-text-muted: #CCC;
+    --bs-secondary-color: #CCC;
+    /* Accents */
+    --app-accent: #4f46e5;
+    --app-accent-2: #22c55e;
+    /* Chat */
+    --chat-user: #1f2937;
+    --chat-assistant: #0f172a;
+    --chat-bubble-border: rgba(255, 255, 255, 0.10);
+    /* Sizing */
+    --sidebar-width: 320px;
+    --tool-width: 50%;
+    /* Layout */
+    --topbar-height: 56px;
+    /* Sidebar */
+    --sidebar-bg-start: #0c1e3c;
+    --sidebar-bg-end: #0c1e3c;
+    --sidebar-accent: #2563eb;
+    --sidebar-hover: rgba(255, 255, 255, 0.06);
+    --sidebar-active: rgba(37, 99, 235, 0.35);
+    /* Bootstrap theme alignment */
+    --bs-body-bg: var(--app-bg);
+    --bs-body-color: var(--app-text);
+    --bs-secondary-color: var(--app-text-muted);
+    --bs-tertiary-color: var(--app-text-muted);
+    --bs-border-color: var(--app-border);
+    --bs-link-color: var(--app-text);
+    --bs-link-hover-color: #fff;
+    --bs-heading-color: var(--app-text);
+    --bs-primary: var(--sidebar-accent);
+    --bs-primary-rgb: 37, 99, 235;
+}
+
+html, body {
+    height: 100vh;
+    width: 100vw;
+    overflow-x: hidden;
+}
+
+body {
+    margin: 0;
+    background: var(--app-bg);
+    color: var(--app-text);
+}
+
+/* --- Layout primitives (global because MainLayout uses these classes) --- */
+.page {
+    display: grid;
+    grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+    height: 100vh;
+    overflow: hidden;
+}
+
+main {
+    background: var(--app-bg);
+    overflow: hidden;
+}
+
+.top-row {
+    height: var(--topbar-height);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 1rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-bottom: 1px solid var(--app-border);
+}
+
+.top-row a {
+    color: var(--app-text);
+    text-decoration: none;
+}
+
+.content {
+    height: calc(100vh - var(--topbar-height));
+    overflow: hidden;
+    padding: 0; /* important: chat wants full control */
+}
+
+/* Keep Blazor error UI minimal but readable */
+#blazor-error-ui {
+    background: rgba(255, 255, 0, 0.15);
+    color: var(--app-text);
+    bottom: 0;
+    display: none;
+    left: 0;
+    padding: 0.6rem 1.25rem;
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+    border-top: 1px solid var(--app-border);
+}
+
+#blazor-error-ui .dismiss {
+    cursor: pointer;
+    position: absolute;
+    right: 0.75rem;
+    top: 0.5rem;
+}
+
+hr {
+    border-color: var(--app-border);
+    opacity: 1;
+}

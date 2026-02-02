@@ -1,0 +1,48 @@
+﻿.heading {
+    color: var(--app-text-muted);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+}
+
+.conversation-list .navbar-toggler {
+    background: none;
+    border: none;
+    color: var(--app-text-muted);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.4rem 0.75rem;
+    border-radius: 0.4rem;
+    box-shadow: none;
+}
+
+.conversation-list .navbar-toggler:hover {
+    background: none;
+    color: #fff;
+}
+
+.conversation-list .navbar-toggler:focus,
+.conversation-list .navbar-toggler:active,
+.conversation-list .navbar-toggler:focus-visible {
+    outline: none;
+    box-shadow: none;
+    background: none;
+}
+
+.conversation-list .nav-link.sidebar-item {
+    color: var(--app-text);
+    border-radius: 0.5rem;
+    padding: 0.45rem 0.75rem;
+    margin: 0.15rem 0;
+    font-size: 0.9rem;
+}
+
+.conversation-list .nav-link.sidebar-item:hover {
+    background: var(--sidebar-hover);
+    color: var(--app-text);
+}
+
+.conversation-list .nav-link.sidebar-item.active {
+    background: var(--sidebar-active);
+    color: #fff;
+}

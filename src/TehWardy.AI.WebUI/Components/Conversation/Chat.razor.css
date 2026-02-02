@@ -1,0 +1,109 @@
+﻿:host {
+    height: 100%;
+    display: block;
+    min-height: 0;
+}
+
+.shell {
+    height: 100%;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.transcript {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+    padding: 1.25rem 1.25rem 1.75rem;
+    scroll-behavior: smooth;
+}
+
+.message {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin-bottom: 1rem;
+    max-width: min(820px, 92%);
+}
+
+.role {
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--app-text-muted);
+}
+
+.bubble {
+    width: fit-content; 
+    max-width: min(820px, 85%); 
+    border: 1px solid var(--chat-bubble-border);
+    border-radius: 0.9rem;
+    padding: 0.75rem 0.95rem;
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--app-text);
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+}
+
+.bubble.thought {
+    opacity: 0.85;
+    font-style: italic;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.message.assistant {
+    margin-right: auto; 
+    align-items: flex-start;
+}
+
+.message.user {
+    margin-left: auto; 
+    align-items: flex-end;
+}
+
+.message.assistant .bubble.message-content {
+    background: rgba(15, 23, 42, 0.85);
+}
+
+.message.user .bubble.message-content {
+    background: rgba(37, 99, 235, 0.18);
+    border-color: rgba(37, 99, 235, 0.35);
+}
+
+.composer {
+    flex: 0 0 auto;
+    background: rgba(255, 255, 255, 0.02);
+    border-top-color: var(--app-border) !important;
+    padding: 0.75rem !important;
+}
+
+.composer .input-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.composer .form-control {
+    background: rgba(0, 0, 0, 0.1);
+    border-color: var(--app-border);
+    color: var(--app-text);
+    min-width: 0; 
+    flex: 1 1 auto;
+}
+
+.composer .form-control::placeholder {
+    color: var(--app-text-muted);
+}
+
+.composer .btn {
+    white-space: nowrap;
+}
+
+.composer .btn-outline-secondary {
+    border-color: var(--app-border);
+    color: var(--app-text);
+}
+
+.composer .btn-outline-secondary:hover {
+    background: rgba(255, 255, 255, 0.05);
+}

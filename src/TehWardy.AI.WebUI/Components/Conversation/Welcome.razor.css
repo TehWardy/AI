@@ -1,0 +1,86 @@
+﻿:host {
+    height: 100%;
+    display: block;
+    min-height: 0;
+}
+
+.welcome {
+    height: 100%;
+    display: grid;
+    place-items: center;
+}
+
+.welcome-inner {
+    width: min(900px, 92vw);
+    padding: 1.5rem;
+}
+
+.welcome-card {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--app-border);
+    border-radius: 1rem;
+    padding: 2rem;
+}
+
+.welcome-title {
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.welcome-subtitle {
+    margin-bottom: 1.25rem;
+}
+
+.welcome-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 1.25rem 0 1.5rem;
+}
+
+.chip {
+    border: 1px solid var(--app-border);
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--app-text);
+    padding: 0.45rem 0.8rem;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    line-height: 1.1;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.chip:hover {
+    background: var(--sidebar-hover);
+}
+
+.welcome-composer {
+    margin-top: 1rem;
+}
+
+.welcome-composer .input-group {
+    width: 100%;
+}
+
+.welcome-composer .btn {
+    white-space: nowrap;
+    min-width: 96px;
+}
+
+.welcome-input {
+    background: transparent;
+    color: var(--app-text);
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.welcome-input::placeholder {
+    color: var(--app-text-muted);
+}
+
+.welcome-hint {
+    margin-top: 0.75rem;
+    line-height: 1.4;
+}
