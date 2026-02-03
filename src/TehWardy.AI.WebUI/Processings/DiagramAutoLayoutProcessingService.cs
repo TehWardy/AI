@@ -149,9 +149,9 @@ public sealed class DiagramAutoLayoutProcessingService : IDiagramAutoLayoutProce
         if (node.Kind == DiagramNodeKind.External) return 5;
         if (node.Kind == DiagramNodeKind.Model) return 3; // keep models near services for now
 
-        if (node.Kind == DiagramNodeKind.Component && node.Role.HasValue)
+        if (node.Kind == DiagramNodeKind.Component)
         {
-            return node.Role.Value switch
+            return node.Role switch
             {
                 DiagramComponentRole.Exposure => 0,
                 DiagramComponentRole.Orchestration => 1,

@@ -209,7 +209,7 @@ public sealed class ArchitectureValidatorProcessingService : IArchitectureValida
             if (!map.ContainsKey(d.FromComponentId))
                 Add(result, "STD053", DiagnosticSeverity.Error, $"Dependency.FromComponentId '{d.FromComponentId}' not found.", dPath + ".fromComponentId");
 
-            if (!map.ContainsKey(d.ToComponentId))
+            if (!map.ContainsKey(d.ToComponentId) && !spec.ExternalResources.Any(r => r.Id == d.ToComponentId))
                 Add(result, "STD054", DiagnosticSeverity.Error, $"Dependency.ToComponentId '{d.ToComponentId}' not found.", dPath + ".toComponentId");
 
             if (map.ContainsKey(d.FromComponentId) && map.ContainsKey(d.ToComponentId))

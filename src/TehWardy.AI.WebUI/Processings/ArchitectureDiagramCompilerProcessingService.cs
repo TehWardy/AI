@@ -55,11 +55,7 @@ public sealed class ArchitectureDiagramCompilerProcessingService
 
     private static ComponentSpec CompileComponent(DiagramNode node)
     {
-        if (!node.Role.HasValue)
-            throw new InvalidOperationException(
-                $"Component node '{node.Name}' has no Role.");
-
-        var (layer, exposureKind, serviceKind) = MapRole(node.Role.Value);
+        var (layer, exposureKind, serviceKind) = MapRole(node.Role);
 
         ComponentSpec component = layer switch
         {
@@ -126,6 +122,7 @@ public sealed class ArchitectureDiagramCompilerProcessingService
     {
         return new ExternalResourceSpec
         {
+            Id = node.Name,
             Name = node.Name,
             Type = ExternalResourceType.Other
         };
@@ -144,10 +141,16 @@ public sealed class ArchitectureDiagramCompilerProcessingService
             if (!nodeMap.TryGetValue(edge.ToNodeName, out var to))
                 throw new InvalidOperationException("Invalid ToNodeId.");
 
+            string fromComponentId = spec.Components
+                .FirstOrDefault(c => c.Name == from.Name)?.Id;
+
+            string toComponentId = spec.Components
+                .FirstOrDefault(c => c.Name == to.Name)?.Id;
+
             spec.Dependencies.Add(new DependencySpec
             {
-                FromComponentId = edge.FromNodeName,
-                ToComponentId = edge.ToNodeName
+                FromComponentId = fromComponentId,
+                ToComponentId = toComponentId
             });
         }
     }

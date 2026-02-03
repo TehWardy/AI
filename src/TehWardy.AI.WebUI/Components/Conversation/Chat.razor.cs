@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using TehWardy.AI.WebUI.Foundations;
 using TehWardy.AI.WebUI.Models;
@@ -60,6 +59,8 @@ public partial class Chat : ComponentBase
         if (IsProcessing)
             return;
 
+        IsProcessing = true;
+
         Prompt prompt = new()
         {
             Input = ToolStateJson is not null 
@@ -72,48 +73,67 @@ public partial class Chat : ComponentBase
             .SendPromptAsync(prompt);
 
         await HandleAiResponse(response);
+        IsProcessing = false;
     }
 
     async ValueTask HandleAiResponse(IAsyncEnumerable<Token> response)
     {
-        ChatMessage message = new()
-        {
-            Role = "assistant"
-        };
-
+        ChatMessage message = new() { Role = "assistant" };
         Conversation.History.Add(message);
+
+        bool thinking = true;
 
         await foreach (var token in response)
         {
             if (token.Thought == "UI Tool Recommendation")
             {
-                ToolState toolState = new()
-                {
-                    Title = token.Content,
-                    ToolName = token.Content,
-                    InstanceId = Guid.NewGuid()
-                };
+                await HandleToolLoadToken(token);
+                continue;
+            }
 
-                await OnToolOpenRequested.InvokeAsync(toolState);
-            }
-            else if (token.Thought == "Tool State Update")
+            if (token.Thought == "Tool State Update")
             {
-                if (TryExtractToolStateJson(token.Content, out string toolStateJson))
-                {
-                    await OnNewToolStateFromAssistant.InvokeAsync(toolStateJson);
-                }
+                await HandleNewAIProvidedToolState(token);
+                continue;
             }
-            else
+
+            if (thinking is false && !string.IsNullOrEmpty(token.Thought))
             {
-                message.Thought += token.Thought;
-                message.Message += token.Content;
-                StateHasChanged();
+                message = new() { Role = "assistant" };
+                Conversation.History.Add(message);
+                thinking = true;
+                await InvokeAsync(StateHasChanged);
             }
+
+            if (!string.IsNullOrEmpty(token.Content) && thinking is true)
+                thinking = false;
+
+            message.Thought += token.Thought;
+            message.Message += token.Content;
+            await InvokeAsync(StateHasChanged);
         }
 
         UserInput = string.Empty;
-        IsProcessing = false;
         StateHasChanged();
+    }
+
+    private async Task HandleNewAIProvidedToolState(Token token)
+    {
+        await OnNewToolStateFromAssistant.InvokeAsync(token.Content);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task HandleToolLoadToken(Token token)
+    {
+        ToolState toolState = new()
+        {
+            Title = token.Content,
+            ToolName = token.Content,
+            InstanceId = Guid.NewGuid()
+        };
+
+        await OnToolOpenRequested.InvokeAsync(toolState);
+        await InvokeAsync(StateHasChanged);
     }
 
     async Task HandleKeyDown(KeyboardEventArgs e)
@@ -122,110 +142,5 @@ public partial class Chat : ComponentBase
             await SendAsync();
     }
 
-    private static bool TryExtractToolStateJson(string content, out string toolStateJson)
-    {
-        toolStateJson = null;
 
-        if (string.IsNullOrWhiteSpace(content))
-            return false;
-
-        string trimmed = StripCodeFences(content.Trim());
-
-        if (TryNormalizeJson(trimmed, out toolStateJson))
-            return true;
-
-        int startIndex = trimmed.IndexOf('{');
-
-        if (startIndex < 0)
-            return false;
-
-        int depth = 0;
-        bool inString = false;
-        bool escaped = false;
-        int endIndex = -1;
-
-        for (int i = startIndex; i < trimmed.Length; i++)
-        {
-            char current = trimmed[i];
-
-            if (escaped)
-            {
-                escaped = false;
-                continue;
-            }
-
-            if (current == '\\' && inString)
-            {
-                escaped = true;
-                continue;
-            }
-
-            if (current == '"')
-            {
-                inString = !inString;
-                continue;
-            }
-
-            if (!inString)
-            {
-                if (current == '{')
-                {
-                    depth++;
-                }
-                else if (current == '}')
-                {
-                    depth--;
-
-                    if (depth == 0)
-                    {
-                        endIndex = i;
-                        break;
-                    }
-                }
-            }
-        }
-
-        if (endIndex < 0)
-            return false;
-
-        string jsonCandidate = trimmed.Substring(startIndex, endIndex - startIndex + 1);
-
-        return TryNormalizeJson(jsonCandidate, out toolStateJson);
-    }
-
-    private static string StripCodeFences(string content)
-    {
-        if (!content.StartsWith("```"))
-            return content;
-
-        int firstNewline = content.IndexOf('\n');
-
-        if (firstNewline < 0)
-            return content;
-
-        string withoutOpeningFence = content[(firstNewline + 1)..];
-
-        int closingFenceIndex = withoutOpeningFence.LastIndexOf("```", StringComparison.Ordinal);
-
-        if (closingFenceIndex < 0)
-            return withoutOpeningFence.Trim();
-
-        return withoutOpeningFence[..closingFenceIndex].Trim();
-    }
-
-    private static bool TryNormalizeJson(string candidate, out string normalizedJson)
-    {
-        normalizedJson = null;
-
-        try
-        {
-            using JsonDocument document = JsonDocument.Parse(candidate);
-            normalizedJson = JsonSerializer.Serialize(document.RootElement);
-            return true;
-        }
-        catch (JsonException)
-        {
-            return false;
-        }
-    }
 }

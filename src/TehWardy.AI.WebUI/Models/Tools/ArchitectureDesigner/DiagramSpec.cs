@@ -27,14 +27,15 @@ public enum DiagramComponentRole
     Processing,
     Service,
     Broker,
-    External
+    External,
+    Model
 }
 
 public sealed class DiagramNode
 {
     public DiagramNodeKind Kind { get; set; }
     public string Name { get; set; }
-    public DiagramComponentRole? Role { get; set; }
+    public DiagramComponentRole Role { get; set; }
     public IList<DiagramMethod> Methods { get; set; }
     public IList<DiagramProperty> Properties { get; set; }
 }

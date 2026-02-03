@@ -18,14 +18,7 @@ internal static partial class Data
         FirstStepName = "Reason With Tools Loop",
         Policy = new RunbookPolicy
         {
-            AllowedTools =
-            [
-                ToolDefinitions.FileSystem,
-                ToolDefinitions.Github,
-                ToolDefinitions.ArchitectureDiagram,
-                ToolDefinitions.StandardArchitecture,
-                ToolDefinitions.Variable
-            ]
+            AllowedTools = []
         },
         Steps =
         [
@@ -46,21 +39,20 @@ internal static partial class Data
                         StepType = "reason",
                         Parameters = new Dictionary<string, object>
                         {
-                            { "EmitTokens", true },
                             { "StoreAs", "ReasonResult" },
                             { "Instruction", """
 You are the Architect agent. Modify the given DiagramSpecification to meet the users requirements.
 
 DiagramSpecification schema:
 - { Name: string, Nodes: [], Edges: [] }
-- Node: { Kind: Component|Model|External, Name: string, Role: Exposure|Orchestration|Processing|Service|Broker, Methods: [], Properties: [] }
+- Node: { Kind: Component|Model|External, Name: string, Role: Exposure|Orchestration|Processing|Service|Broker|Model, Methods: [], Properties: [] }
 - Edge: { FromNodeName: string, ToNodeName: string }
 - Method: { Name: string, OutputType: string, Inputs: [] }
 - Input: { Name: string, Type: string, Required: bool }
 - Property: { Name: string, Type: string, Required: bool }
 
 Rules:
-- DiagramSpec Id properties need to be unique or the edge map won't make sense.
+- Don't leave nulls or empty strings, all fields are required.
 - The Diagram supports multiple Exposure nodes.
 - Brokers must depend only on External nodes.
 - Foundations must depend only on exactly 1 Broker node.
@@ -127,7 +119,7 @@ You MUST NOT include any other response besides the DiagramSpecification as JSON
         IArchitectureDiagramTool architectureDiagramTool =
             serviceProvider.GetService<IArchitectureDiagramTool>();
 
-        yield return new Token { Thought = "\n[tool: Start] Calling Architecutre Diagram Tool ..." };
+        yield return new Token { Thought = "\n[tool: Start] Architecutre Diagram Tool: Validating & Compiling the Diagram ..." };
 
         (ArchitectureSpec spec, DiagramValidationResult validationResults) = 
             architectureDiagramTool.ParseDiagram(inferredDiagramToken.Content);
@@ -144,7 +136,7 @@ You MUST NOT include any other response besides the DiagramSpecification as JSON
         {
             yield return new Token 
             { 
-                Thought = "\n[tool: Start] Calling Architecutre Diagram Tool ..."
+                Thought = "\n[tool: Start] Architecutre Specification Tool: Validating & Normalizing the Architecture Specification ..."
             };
 
             IStandardArchitectureTool architectureTool =
@@ -172,16 +164,16 @@ You MUST NOT include any other response besides the DiagramSpecification as JSON
 
             yield return new Token 
             { 
-                Thought = $"\n[tool: Done] The Architecture Spcification compiled from the diagram appears to be {validity}" 
+                Thought = $"\n[tool: Done] The Architecture Specification compiled from the diagram appears to be {validity}" 
             };
 
-            request.RunbookState.Variables["StillThinking"] = 
-                result.Validation.IsValid;
+            request.RunbookState.Variables["StillThinking"] = !result.Validation.IsValid;
 
             if (result.Validation.IsValid)
             {
                 yield return new Token
                 {
+                    Thought = "Tool State Update",
                     Content = inferredDiagramToken.Content
                 };
             }

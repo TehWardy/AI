@@ -24,7 +24,7 @@
     flex-direction: column;
     gap: 0.35rem;
     margin-bottom: 1rem;
-    max-width: min(820px, 92%);
+    max-width: min(900px, 95%);
 }
 
 .role {
@@ -50,6 +50,8 @@
     opacity: 0.85;
     font-style: italic;
     background: rgba(255, 255, 255, 0.02);
+    max-height: 500px;
+    overflow: auto;
 }
 
 .message.assistant {
@@ -106,4 +108,29 @@
 
 .composer .btn-outline-secondary:hover {
     background: rgba(255, 255, 255, 0.05);
+}
+
+.transcript {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.22) rgba(255,255,255,0.06);
+}
+
+.transcript::-webkit-scrollbar {
+    width: 10px;
+}
+
+.transcript::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 999px;
+}
+
+.transcript::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.20);
+    border-radius: 999px;
+    border: 2px solid rgba(0,0,0,0); 
+    background-clip: padding-box;
+}
+
+.transcript::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.28);
 }

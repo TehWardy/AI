@@ -2,7 +2,7 @@
 
 namespace TehWardy.AI.WebUI.Processings;
 
-public static class SampleDiagramFactory
+public static partial class SampleDiagramFactory
 {
     public static DiagramSpecification CreateSample()
     {

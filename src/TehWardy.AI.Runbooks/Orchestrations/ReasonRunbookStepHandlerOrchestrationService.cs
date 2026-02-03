@@ -34,7 +34,7 @@ internal class ReasonRunbookStepHandlerOrchestrationService(
                 accumulatedToken = finalToken;
                 continue;
             }
-            else if (emitTokens)
+            else if (token.Thought is not null || emitTokens)
                 yield return token;
         }
 

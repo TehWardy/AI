@@ -148,15 +148,18 @@ public sealed class ArchitectureDiagramValidationProcessingService
                     break;
 
                 case DiagramComponentRole.Orchestration:
-                    if (outEdges.Count == 0 || outEdges.Count > 3)
+                    if (outEdges.Count < 2 || outEdges.Count > 3)
                     {
                         Add(result, "DIA040", DiagramDiagnosticSeverity.Error,
-                            "Orchestration component must have 1 to 3 outgoing dependencies.",
+                            "Orchestration component must have 2 to 3 outgoing dependencies.",
                             nodeName: node.Name);
                     }
                     break;
 
                 case DiagramComponentRole.Processing:
+                    ValidateOutgoing(node, outEdges, 1, result);
+                    break;
+
                 case DiagramComponentRole.Service:
                     ValidateOutgoing(node, outEdges, 1, result);
                     break;

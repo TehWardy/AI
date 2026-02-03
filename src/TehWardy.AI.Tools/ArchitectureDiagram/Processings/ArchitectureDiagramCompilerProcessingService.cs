@@ -17,7 +17,40 @@ public sealed class ArchitectureDiagramCompilerProcessingService
             Components = new List<ComponentSpec>(),
             Models = new List<ModelSpec>(),
             ExternalResources = new List<ExternalResourceSpec>(),
-            Dependencies = new List<DependencySpec>()
+            Dependencies = new List<DependencySpec>(), 
+            Policies = new() 
+            { 
+                ErrorHandling = new ErrorHandlingPolicy 
+                { 
+                    BrokersDeclareThrows = false, 
+                    ExposureMapsExceptions = true
+                }, 
+                Layering = new LayeringPolicy
+                { 
+                    AllowBrokerToBrokerDependencies = false, 
+                    AllowExposureToExposureDependencies = false, 
+                    AllowServiceToServiceDependencies = true, 
+                    EnforceStrictLayering = true
+                }, 
+                Logging = new LoggingPolicy
+                { 
+                    BrokersLog = false, 
+                    ExposureLogs = false, 
+                    ServicesLog = true, 
+                    LoggerAbstractionType = "ILoggingBroker"
+                }, 
+                Naming = new NamingPolicy
+                {
+                    SolutionName = diagram.Name,
+                    RootNamespace = diagram.Name,
+                    AsyncMethodSuffix = "Async", 
+                    BrokersProjectSuffix = "", 
+                    ExposureProjectSuffix  = "", 
+                    InterfacePrefix = "I", 
+                    ModelsProjectSuffix = "", 
+                    ServicesProjectSuffix = ""
+                }
+            }
         };
 
         var nodeMap = diagram.Nodes.ToDictionary(n => n.Name);
@@ -55,11 +88,7 @@ public sealed class ArchitectureDiagramCompilerProcessingService
 
     private static ComponentSpec CompileComponent(DiagramNode node)
     {
-        if (!node.Role.HasValue)
-            throw new InvalidOperationException(
-                $"Component node '{node.Name}' has no Role.");
-
-        var (layer, exposureKind, serviceKind) = MapRole(node.Role.Value);
+        var (layer, exposureKind, serviceKind) = MapRole(node.Role);
 
         ComponentSpec component = layer switch
         {
@@ -82,6 +111,7 @@ public sealed class ArchitectureDiagramCompilerProcessingService
             _ => throw new InvalidOperationException()
         };
 
+        component.Id = Guid.NewGuid().ToString();
         component.Name = node.Name;
         component.Layer = layer;
         component.Methods = CompileMethods(node.Methods);
@@ -126,6 +156,7 @@ public sealed class ArchitectureDiagramCompilerProcessingService
     {
         return new ExternalResourceSpec
         {
+            Id = node.Name,
             Name = node.Name,
             Type = ExternalResourceType.Other
         };
@@ -144,10 +175,18 @@ public sealed class ArchitectureDiagramCompilerProcessingService
             if (!nodeMap.TryGetValue(edge.ToNodeName, out var to))
                 throw new InvalidOperationException("Invalid ToNodeId.");
 
+            string fromComponentId = spec.Components
+                .FirstOrDefault(c => c.Name == from.Name)?.Id;
+
+            string toComponentId = spec.Components
+                .FirstOrDefault(c => c.Name == to.Name)?.Id ?? 
+                    spec.ExternalResources
+                        .FirstOrDefault(r => r.Name == to.Name)?.Id;
+
             spec.Dependencies.Add(new DependencySpec
             {
-                FromComponentId = edge.FromNodeName,
-                ToComponentId = edge.ToNodeName
+                FromComponentId = fromComponentId,
+                ToComponentId = toComponentId
             });
         }
     }

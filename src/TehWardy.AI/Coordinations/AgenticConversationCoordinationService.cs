@@ -62,36 +62,8 @@ internal class AgenticConversationCoordinationService(
         IAsyncEnumerable<Token> response = runbookOrchestrationService
             .ExecuteRunbookOrchestrationRequestAsync(runbookOrchestrationRequest);
 
-        bool firstResponseToken = true;
-        bool potentialToolStateUpate = false;
-
-        StringBuilder stateBuilder = new();
-
         await foreach (var token in response)
-        {
-            if (firstResponseToken && token.Content is not null)
-            {
-                firstResponseToken = false;
-
-                string trimmedContent = token.Content.TrimStart();
-
-                potentialToolStateUpate = trimmedContent.StartsWith("{");
-            }
-
-            if(potentialToolStateUpate)
-                stateBuilder.Append(token.Content);
-
             yield return token;
-        }
-
-        if (stateBuilder.Length > 0)
-        {
-            yield return new Token
-            {
-                Thought = "Tool State Update",
-                Content = stateBuilder.ToString()
-            };
-        }
 
         await agenticConversationContextOrchestrationService
             .SaveConversationContextAsync(context);

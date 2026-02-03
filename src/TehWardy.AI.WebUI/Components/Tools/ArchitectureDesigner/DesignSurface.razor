@@ -43,9 +43,9 @@
 
                 <svg:text x="14" y="28" class="node-title">@node.Name</svg:text>
 
-                @if (node.Kind == DiagramNodeKind.Component && node.Role.HasValue)
+                @if (node.Kind == DiagramNodeKind.Component)
                 {
-                    <svg:text x="14" y="48" class="node-subtitle">@node.Role.Value</svg:text>
+                    <svg:text x="14" y="48" class="node-subtitle">@node.Role</svg:text>
                 }
                 else if (node.Kind == DiagramNodeKind.External)
                 {

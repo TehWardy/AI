@@ -16,7 +16,6 @@ public partial class Conversation : ComponentBase
     protected ToolHost ToolHost { get; set; }
 
     protected ToolState ToolState { get; set; }
-    private string pendingToolStateJson;
 
     protected void HandleNewConversationStart(Guid conversationId) =>
         Nav.NavigateTo($"/Conversation/{conversationId}");
@@ -43,28 +42,11 @@ public partial class Conversation : ComponentBase
     protected void HandleNewToolStateFromAssistant(string serializedToolState)
     {
         if (ToolState is null)
-        {
-            ToolState = new ToolState
-            {
-                ToolName = "ArchitectureDesigner",
-                Title = "Architecture Designer",
-                InstanceId = Guid.NewGuid()
-            };
-
-            pendingToolStateJson = serializedToolState;
+        { 
             StateHasChanged();
             return;
         }
 
         ToolHost.AssistantToolStateChanged(serializedToolState);
-    }
-
-    protected override void OnAfterRender(bool firstRender)
-    {
-        if (pendingToolStateJson is not null && ToolHost is not null)
-        {
-            ToolHost.AssistantToolStateChanged(pendingToolStateJson);
-            pendingToolStateJson = null;
-        }
     }
 }
