@@ -15,7 +15,7 @@ internal class ArchitectureDiagramCompilerOrchestrationService(
         try
         {
             DiagramSpecification diagram = JsonSerializer
-                .Deserialize<DiagramSpecification>(diagramJson.Trim().Trim([.. "`json"]));
+                .Deserialize<DiagramSpecification>(diagramJson);
 
             return ValidateAndCompileInternal(diagram);
         }

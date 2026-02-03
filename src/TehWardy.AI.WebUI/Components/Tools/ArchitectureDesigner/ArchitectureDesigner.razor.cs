@@ -22,8 +22,6 @@ public partial class ArchitectureDesigner : ComponentBase, IToolComponent
 
     public void ApplyAssistantState(string newToolStateJson)
     {
-        newToolStateJson = newToolStateJson.Trim();
-
         Diagram = JsonSerializer
             .Deserialize<DiagramSpecification>(newToolStateJson);
 

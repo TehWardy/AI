@@ -2,7 +2,6 @@
 using TehWardy.AI.Agents.Runbooks.Models;
 using TehWardy.AI.Providers.Models;
 using TehWardy.AI.Runbooks.Models;
-using TehWardy.AI.Tools;
 using TehWardy.AI.Tools.ArchitectureDiagram;
 using TehWardy.AI.Tools.ArchitectureDiagram.Models;
 using TehWardy.AI.Tools.Standard;
@@ -115,6 +114,9 @@ You MUST NOT include any other response besides the DiagramSpecification as JSON
     {
         AccumulatedToken inferredDiagramToken = 
             (AccumulatedToken)request.RunbookState.Variables["ReasonResult"];
+
+        inferredDiagramToken.Content = 
+            inferredDiagramToken.Content?.Trim().Trim([.. "`json"]);
 
         IArchitectureDiagramTool architectureDiagramTool =
             serviceProvider.GetService<IArchitectureDiagramTool>();
