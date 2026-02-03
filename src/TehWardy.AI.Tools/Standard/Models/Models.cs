@@ -264,7 +264,6 @@ public enum ExternalResourceType
 
 public sealed class ExternalResourceSpec
 {
-    public string Id { get; set; }
     public ExternalResourceType Type { get; set; }
     public string Name { get; set; }
     public string ClientType { get; set; }

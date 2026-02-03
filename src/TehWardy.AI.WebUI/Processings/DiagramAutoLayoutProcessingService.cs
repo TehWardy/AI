@@ -15,16 +15,19 @@ public sealed class DiagramAutoLayoutProcessingService : IDiagramAutoLayoutProce
 
     public ComputedDiagramLayout Compute(DiagramSpecification diagram)
     {
-        if (diagram == null) throw new ArgumentNullException(nameof(diagram));
-        if (diagram.Nodes == null) throw new InvalidOperationException("Diagram.Nodes is null.");
+        if (diagram == null) 
+            throw new ArgumentNullException(nameof(diagram));
+
+        if (diagram.Nodes == null) 
+            throw new InvalidOperationException("Diagram.Nodes is null.");
 
         var nodes = diagram.Nodes;
         var edges = diagram.Edges ?? new List<DiagramEdge>();
 
-        var nodeMap = nodes.ToDictionary(n => n.Id);
+        var nodeMap = nodes.ToDictionary(n => n.Name);
 
         var outgoing = edges
-            .GroupBy(e => e.FromNodeId)
+            .GroupBy(e => e.FromNodeName)
             .ToDictionary(g => g.Key, g => g.ToList());
 
         // Treat "Root" role as an Exposure column entry point.
@@ -39,25 +42,25 @@ public sealed class DiagramAutoLayoutProcessingService : IDiagramAutoLayoutProce
             return FallbackGrid(nodes);
         }
 
-        var layouts = new Dictionary<Guid, NodeLayout>();
-        var occupied = new HashSet<Guid>();
+        var layouts = new Dictionary<string, NodeLayout>();
+        var occupied = new HashSet<string>();
 
         int lane = 0;
 
         foreach (var root in roots)
         {
             // Walk each root chain (for now assume linear; if multiple outgoing, we create more lanes)
-            LayoutFrom(root.Id, depth: 0, laneRef: ref lane, fixedLane: lane, outgoing, nodeMap, layouts, occupied);
+            LayoutFrom(root.Name, depth: 0, laneRef: ref lane, fixedLane: lane, outgoing, nodeMap, layouts, occupied);
             lane++;
         }
 
         // Lay out any models/external nodes not reached (keep simple: place below in extra lanes)
         foreach (var node in nodes)
         {
-            if (occupied.Contains(node.Id)) continue;
+            if (occupied.Contains(node.Name)) continue;
 
             var col = GetColumn(node);
-            layouts[node.Id] = MakeNodeLayout(col, lane);
+            layouts[node.Name] = MakeNodeLayout(col, lane);
             lane++;
         }
 
@@ -73,55 +76,55 @@ public sealed class DiagramAutoLayoutProcessingService : IDiagramAutoLayoutProce
     }
 
     private static void LayoutFrom(
-        Guid nodeId,
+        string nodeName,
         int depth,
         ref int laneRef,
         int fixedLane,
-        IDictionary<Guid, List<DiagramEdge>> outgoing,
-        IDictionary<Guid, DiagramNode> nodeMap,
-        IDictionary<Guid, NodeLayout> layouts,
-        HashSet<Guid> occupied)
+        IDictionary<string, List<DiagramEdge>> outgoing,
+        IDictionary<string, DiagramNode> nodeMap,
+        IDictionary<string, NodeLayout> layouts,
+        HashSet<string> occupied)
     {
-        if (!nodeMap.TryGetValue(nodeId, out var node))
+        if (!nodeMap.TryGetValue(nodeName, out var node))
             return;
 
-        if (!occupied.Contains(nodeId))
+        if (!occupied.Contains(nodeName))
         {
             var col = GetColumn(node);
-            layouts[nodeId] = MakeNodeLayout(col, fixedLane);
-            occupied.Add(nodeId);
+            layouts[nodeName] = MakeNodeLayout(col, fixedLane);
+            occupied.Add(nodeName);
         }
 
-        if (!outgoing.TryGetValue(nodeId, out var outs) || outs.Count == 0)
+        if (!outgoing.TryGetValue(nodeName, out var outs) || outs.Count == 0)
             return;
 
         // For now: prefer linear chains; if branching occurs, each branch gets its own lane.
         if (outs.Count == 1)
         {
-            LayoutFrom(outs[0].ToNodeId, depth + 1, ref laneRef, fixedLane, outgoing, nodeMap, layouts, occupied);
+            LayoutFrom(outs[0].ToNodeName, depth + 1, ref laneRef, fixedLane, outgoing, nodeMap, layouts, occupied);
             return;
         }
 
         // Branching: keep first in current lane, others in new lanes
-        LayoutFrom(outs[0].ToNodeId, depth + 1, ref laneRef, fixedLane, outgoing, nodeMap, layouts, occupied);
+        LayoutFrom(outs[0].ToNodeName, depth + 1, ref laneRef, fixedLane, outgoing, nodeMap, layouts, occupied);
 
         for (int i = 1; i < outs.Count; i++)
         {
             laneRef++;
-            LayoutFrom(outs[i].ToNodeId, depth + 1, ref laneRef, laneRef, outgoing, nodeMap, layouts, occupied);
+            LayoutFrom(outs[i].ToNodeName, depth + 1, ref laneRef, laneRef, outgoing, nodeMap, layouts, occupied);
         }
     }
 
     private static ComputedDiagramLayout FallbackGrid(IList<DiagramNode> nodes)
     {
-        var layouts = new Dictionary<Guid, NodeLayout>();
+        var layouts = new Dictionary<string, NodeLayout>();
         int i = 0;
 
         foreach (var node in nodes.OrderBy(n => n.Kind).ThenBy(n => n.Name))
         {
             var col = i % 3;
             var row = i / 3;
-            layouts[node.Id] = new NodeLayout
+            layouts[node.Name] = new NodeLayout
             {
                 X = MarginX + col * ColumnWidth,
                 Y = MarginY + row * RowHeight,

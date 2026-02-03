@@ -20,6 +20,6 @@ public sealed class DiagramDiagnostic
     public DiagramDiagnosticSeverity Severity { get; set; }
     public string Message { get; set; }
 
-    public Guid? NodeId { get; set; }
-    public Guid? EdgeId { get; set; }
+    public string NodeName { get; set; }
+    public string EdgeName { get; set; }
 }

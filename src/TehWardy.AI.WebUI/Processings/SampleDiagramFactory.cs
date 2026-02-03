@@ -10,7 +10,7 @@ public static class SampleDiagramFactory
 
         // Nodes
         var fooModel = NewModel("Foo", DiagramComponentRole.Exposure);
-        var foo = NewComponent("Foo", DiagramComponentRole.Exposure);
+        var foo = NewComponent("FooThing", DiagramComponentRole.Exposure);
         var fooProc = NewComponent("FooProcessingService", DiagramComponentRole.Processing);
         var fooSvc = NewComponent("FooService", DiagramComponentRole.Service);
         var fooBroker = NewComponent("FooBroker", DiagramComponentRole.Broker);
@@ -20,27 +20,23 @@ public static class SampleDiagramFactory
         var barBroker = NewComponent("BarBroker", DiagramComponentRole.Broker);
 
         var procExternal = NewExternal("External Dependency");
-        fooBroker.ExternalResourceId = procExternal.Id;
-
         var barExternal = NewExternal("Some External");
-        barBroker.ExternalResourceId = barExternal.Id;
 
         // Edges (left -> right)
         var edges = new List<DiagramEdge>
         {
-            NewEdge(foo.Id, fooProc.Id, DiagramDependencyKind.InProcess),
-            NewEdge(fooProc.Id, fooSvc.Id, DiagramDependencyKind.InProcess),
-            NewEdge(fooSvc.Id, fooBroker.Id, DiagramDependencyKind.InProcess),
-            NewEdge(fooBroker.Id, procExternal.Id, DiagramDependencyKind.ExternalBoundary),
+            NewEdge(foo.Name, fooProc.Name),
+            NewEdge(fooProc.Name, fooSvc.Name),
+            NewEdge(fooSvc.Name, fooBroker.Name),
+            NewEdge(fooBroker.Name, procExternal.Name),
 
-            NewEdge(bar.Id, barSvc.Id, DiagramDependencyKind.InProcess),
-            NewEdge(barSvc.Id, barBroker.Id, DiagramDependencyKind.InProcess),
-            NewEdge(barBroker.Id, barExternal.Id, DiagramDependencyKind.ExternalBoundary),
+            NewEdge(bar.Name, barSvc.Name),
+            NewEdge(barSvc.Name, barBroker.Name),
+            NewEdge(barBroker.Name, barExternal.Name)
         };
 
         return new DiagramSpecification
         {
-            Id = diagramId,
             Name = "Sample Diagram",
             Nodes = 
             [
@@ -56,7 +52,6 @@ public static class SampleDiagramFactory
     {
         return new DiagramNode
         {
-            Id = Guid.NewGuid(),
             Kind = DiagramNodeKind.Component,
             Name = name,
             Role = role,
@@ -79,7 +74,6 @@ public static class SampleDiagramFactory
     {
         return new DiagramNode
         {
-            Id = Guid.NewGuid(),
             Kind = DiagramNodeKind.Model,
             Name = name,
             Role = role,
@@ -95,7 +89,6 @@ public static class SampleDiagramFactory
     {
         return new DiagramNode
         {
-            Id = Guid.NewGuid(),
             Kind = DiagramNodeKind.External,
             Name = name,
             Methods = new List<DiagramMethod>(),
@@ -103,14 +96,12 @@ public static class SampleDiagramFactory
         };
     }
 
-    static DiagramEdge NewEdge(Guid from, Guid to, DiagramDependencyKind kind)
+    static DiagramEdge NewEdge(string from, string to)
     {
         return new DiagramEdge
         {
-            Id = Guid.NewGuid(),
-            FromNodeId = from,
-            ToNodeId = to,
-            Kind = kind
+            FromNodeName = from,
+            ToNodeName = to
         };
     }
 }

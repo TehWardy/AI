@@ -2,7 +2,7 @@
 
 public sealed class ComputedDiagramLayout
 {
-    public IDictionary<Guid, NodeLayout> Nodes { get; set; }
+    public IDictionary<string, NodeLayout> Nodes { get; set; }
     public double Width { get; set; }
     public double Height { get; set; }
 }

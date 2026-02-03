@@ -69,12 +69,12 @@ internal class ArchitectureSpecificationOrchestrationService(
     {
         List<Diagnostic> results = [];
 
-        string nodePath = diagramDiagnostic.NodeId != null
-            ? $"Nodes/{diagramDiagnostic.NodeId}"
+        string nodePath = diagramDiagnostic.NodeName != null
+            ? $"Nodes/{diagramDiagnostic.NodeName}"
             : null;
 
-        string edgePath = diagramDiagnostic.EdgeId != null
-            ? $"Edges/{diagramDiagnostic.EdgeId}"
+        string edgePath = diagramDiagnostic.EdgeName != null
+            ? $"Edges/{diagramDiagnostic.EdgeName}"
             : null;
 
         if (nodePath is not null)

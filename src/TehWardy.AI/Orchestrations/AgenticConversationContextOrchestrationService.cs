@@ -29,7 +29,7 @@ internal class AgenticConversationContextOrchestrationService(
             ? conversation.History[^1]
             : null;
 
-        if (lastMessage?.Role != "user" || lastMessage.Message != prompt.Input)
+        if (lastMessage?.Message != prompt.Input)
         {
             conversation.History.Add(new ChatMessage
             {
@@ -44,4 +44,7 @@ internal class AgenticConversationContextOrchestrationService(
             Conversation = conversation
         };
     }
+
+    public ValueTask SaveConversationContextAsync(ConversationContext converstationContext) =>
+        conversationService.SaveConversationAsync(converstationContext.Conversation);
 }

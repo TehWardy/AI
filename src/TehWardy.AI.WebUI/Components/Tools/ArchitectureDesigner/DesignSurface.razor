@@ -17,8 +17,8 @@
         <!-- Edges -->
         @foreach (var edge in Diagram.Edges)
         {
-            if (!ComputedLayout.Nodes.TryGetValue(edge.FromNodeId, out var from) ||
-            !ComputedLayout.Nodes.TryGetValue(edge.ToNodeId, out var to))
+            if (!ComputedLayout.Nodes.TryGetValue(edge.FromNodeName, out var from) ||
+            !ComputedLayout.Nodes.TryGetValue(edge.ToNodeName, out var to))
             {
                 continue;
             }
@@ -26,14 +26,14 @@
             var path = BuildElbowPath(from, to);
 
             <path d="@path"
-                  class="@GetEdgeCss(edge)"
+                  class="edge"
                   marker-end="url(#arrow)" />
         }
 
         <!-- Nodes -->
         @foreach (var node in Diagram.Nodes)
         {
-            if (!ComputedLayout.Nodes.TryGetValue(node.Id, out var rect))
+            if (!ComputedLayout.Nodes.TryGetValue(node.Name, out var rect))
             {
                 continue;
             }

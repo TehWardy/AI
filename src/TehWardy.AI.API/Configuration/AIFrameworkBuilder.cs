@@ -42,6 +42,7 @@ internal static class AIFramework
             // Configure Runbook Step Handlers
             aiProviderConfiguration.WithRunbookStepHandlers(stepHandlingConfiguration =>
             {
+                stepHandlingConfiguration.AddExecutionStepHandler("execute");
                 stepHandlingConfiguration.AddReasoningStepHandler("reason");
                 stepHandlingConfiguration.AddToolCallingStepHandler("toolcall");
                 stepHandlingConfiguration.AddRespondingStepHandler("respond");
@@ -59,8 +60,9 @@ internal static class AIFramework
                     configurations["Github"] as GithubConfiguration);
 
                 toolConfiguration.AddDotNetTool(serviceProvider =>
-                    configurations["DotNet"] as DotNetConfiguration);
-
+                    configurations["DotNet"] as DotNetConfiguration); 
+                
+                toolConfiguration.AddArchitectureDiagramTool();
                 toolConfiguration.AddStandardArchitectureTool();
             });
         });

@@ -4,8 +4,6 @@ namespace TehWardy.AI.WebUI.Models.Tools.ArchitectureDesigner;
 
 public sealed class DiagramSpecification
 {
-    public Guid Id { get; set; }
-
     public string Name { get; set; }
 
     public IList<DiagramNode> Nodes { get; set; }
@@ -28,16 +26,15 @@ public enum DiagramComponentRole
     Orchestration,
     Processing,
     Service,
-    Broker
+    Broker,
+    External
 }
 
 public sealed class DiagramNode
 {
-    public Guid Id { get; set; }
     public DiagramNodeKind Kind { get; set; }
     public string Name { get; set; }
     public DiagramComponentRole? Role { get; set; }
-    public Guid? ExternalResourceId { get; set; }
     public IList<DiagramMethod> Methods { get; set; }
     public IList<DiagramProperty> Properties { get; set; }
 }
@@ -72,17 +69,8 @@ public sealed class DiagramProperty
     public bool Required { get; set; }
 }
 
-[JsonConverter(typeof(JsonStringEnumConverter))]
-public enum DiagramDependencyKind
-{
-    InProcess,
-    ExternalBoundary
-}
-
 public sealed class DiagramEdge
 {
-    public Guid Id { get; set; }
-    public Guid FromNodeId { get; set; }
-    public Guid ToNodeId { get; set; }
-    public DiagramDependencyKind Kind { get; set; }
+    public string FromNodeName { get; set; }
+    public string ToNodeName { get; set; }
 }

@@ -42,9 +42,4 @@ public partial class DesignSurface : ComponentBase
             _ => "node"
         };
     }
-
-    private static string GetEdgeCss(DiagramEdge edge)
-        => edge.Kind == DiagramDependencyKind.ExternalBoundary
-            ? "edge edge-external"
-            : "edge edge-inprocess";
 }

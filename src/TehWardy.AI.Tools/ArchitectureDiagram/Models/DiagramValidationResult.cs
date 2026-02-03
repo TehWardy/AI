@@ -2,6 +2,8 @@
 
 public sealed class DiagramValidationResult
 {
+    public DiagramSpecification DiagramSpecification { get; set; }
+
     public IList<DiagramDiagnostic> Diagnostics { get; set; } = new List<DiagramDiagnostic>();
 
     public bool IsValid =>
@@ -20,6 +22,6 @@ public sealed class DiagramDiagnostic
     public DiagramDiagnosticSeverity Severity { get; set; }
     public string Message { get; set; }
 
-    public Guid? NodeId { get; set; }
-    public Guid? EdgeId { get; set; }
+    public string NodeName { get; set; }
+    public string EdgeName { get; set; }
 }

@@ -20,7 +20,7 @@ public sealed class ArchitectureDiagramCompilerProcessingService
             Dependencies = new List<DependencySpec>()
         };
 
-        var nodeMap = diagram.Nodes.ToDictionary(n => n.Id);
+        var nodeMap = diagram.Nodes.ToDictionary(n => n.Name);
 
         CompileNodes(diagram, spec);
         CompileEdges(diagram, spec, nodeMap);
@@ -76,13 +76,12 @@ public sealed class ArchitectureDiagramCompilerProcessingService
 
             ComponentLayer.Broker => new BrokerSpec
             {
-                ExternalResourceId = node.ExternalResourceId?.ToString()
+
             },
 
             _ => throw new InvalidOperationException()
         };
 
-        component.Id = node.Id.ToString();
         component.Name = node.Name;
         component.Layer = layer;
         component.Methods = CompileMethods(node.Methods);
@@ -127,31 +126,28 @@ public sealed class ArchitectureDiagramCompilerProcessingService
     {
         return new ExternalResourceSpec
         {
-            Id = node.Id.ToString(),
             Name = node.Name,
             Type = ExternalResourceType.Other
         };
     }
+
     private static void CompileEdges(
         DiagramSpecification diagram,
         ArchitectureSpec spec,
-        IDictionary<Guid, DiagramNode> nodeMap)
+        IDictionary<string, DiagramNode> nodeMap)
     {
         foreach (var edge in diagram.Edges)
         {
-            if (!nodeMap.TryGetValue(edge.FromNodeId, out var from))
+            if (!nodeMap.TryGetValue(edge.FromNodeName, out var from))
                 throw new InvalidOperationException("Invalid FromNodeId.");
 
-            if (!nodeMap.TryGetValue(edge.ToNodeId, out var to))
+            if (!nodeMap.TryGetValue(edge.ToNodeName, out var to))
                 throw new InvalidOperationException("Invalid ToNodeId.");
 
             spec.Dependencies.Add(new DependencySpec
             {
-                FromComponentId = edge.FromNodeId.ToString(),
-                ToComponentId = edge.ToNodeId.ToString(),
-                Kind = edge.Kind == DiagramDependencyKind.ExternalBoundary
-                    ? DependencyKind.ExternalBoundary
-                    : DependencyKind.InProcess
+                FromComponentId = edge.FromNodeName,
+                ToComponentId = edge.ToNodeName
             });
         }
     }

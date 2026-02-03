@@ -22,6 +22,15 @@ public class RunbookStepHandlerConfiguration
     internal RunbookStepHandlerConfiguration(AIProviderConfiguration aiConfiguration) =>
         serviceCollection = aiConfiguration.ServiceCollection;
 
+    public void AddExecutionStepHandler(string stepName)
+    {
+        serviceCollection.AddKeyedTransient<IRunbookStepHandler, ExecuteRunbookStepHandler>(stepName);
+
+        serviceCollection.AddTransient<
+            IExecuteRunbookStepProcessingService,
+            ExecuteRunbookStepProcessingService>();
+    }
+
     public void AddReasoningStepHandler(string stepName)
     {
         serviceCollection.AddKeyedTransient<IRunbookStepHandler, ReasonRunbookStepHandler>(stepName);

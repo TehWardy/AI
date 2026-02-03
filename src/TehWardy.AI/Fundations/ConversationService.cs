@@ -54,4 +54,7 @@ internal class ConversationService(IConversationBroker conversationBroker)
 
         return conversation;
     }
+
+    public ValueTask SaveConversationAsync(Conversation conversation) =>
+        conversationBroker.SaveConversationAsync(conversation);
 }

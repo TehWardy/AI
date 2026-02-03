@@ -12,14 +12,43 @@ internal class ArchitectureDiagramCompilerOrchestrationService(
 {
     public (ArchitectureSpec, DiagramValidationResult) ValidateAndCompile(string diagramJson)
     {
-        DiagramSpecification diagram = JsonSerializer
-            .Deserialize<DiagramSpecification>(diagramJson);
+        try
+        {
+            DiagramSpecification diagram = JsonSerializer
+                .Deserialize<DiagramSpecification>(diagramJson.Trim().Trim([.. "`json"]));
 
-        DiagramValidationResult diagramValidationResult = 
+            return ValidateAndCompileInternal(diagram);
+        }
+        catch (Exception ex)
+        {
+            var validationResult = new DiagramValidationResult
+            {
+                Diagnostics =
+                [
+                    new DiagramDiagnostic
+                    {
+                        Severity = DiagramDiagnosticSeverity.Error,
+                        Message = $"Diagram failed to parse due to exception in the JSON parser: {ex.Message}"
+                    }
+                ]
+            };
+
+            return (null, validationResult);
+        }
+    }
+
+    (ArchitectureSpec, DiagramValidationResult) ValidateAndCompileInternal(DiagramSpecification diagram)
+    {
+        DiagramValidationResult diagramValidationResult =
             architectureDiagramValidationProcessingService.Validate(diagram);
 
-        ArchitectureSpec specification = 
-            architectureDiagramCompilerProcessingService.Compile(diagram);
+        ArchitectureSpec specification = null;
+
+        if (diagramValidationResult.IsValid)
+        {
+            specification = architectureDiagramCompilerProcessingService
+                .Compile(diagram);
+        }
 
         return (specification, diagramValidationResult);
     }

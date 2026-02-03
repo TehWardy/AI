@@ -8,4 +8,5 @@ internal interface IConversationService
     ValueTask<List<Conversation>> RetrieveAllConversationsAsync();
     ValueTask<Conversation> RetrieveConversationAsync(Guid conversationId);
     ValueTask<Conversation> RetrieveConversationByIdAsync(Guid conversationId);
+    ValueTask SaveConversationAsync(Conversation conversation);
 }

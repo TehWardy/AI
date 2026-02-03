@@ -8,4 +8,5 @@ internal interface IAgenticConversationContextOrchestrationService
     ValueTask<List<Conversation>> RetrieveAllConversationsAsync();
     ValueTask<Conversation> RetrieveConversationByIdAsync(Guid converstionId);
     ValueTask<ConversationContext> RetrieveConversationContextAsync(Prompt prompt);
+    ValueTask SaveConversationContextAsync(ConversationContext converstationContext);
 }

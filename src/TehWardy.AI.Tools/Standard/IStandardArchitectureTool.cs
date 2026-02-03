@@ -2,7 +2,7 @@
 
 namespace TehWardy.AI.Tools.Standard;
 
-internal interface IStandardArchitectureTool
+public interface IStandardArchitectureTool
 {
     ValidateAndNormalizeResult ValidateAndNormalize(ArchitectureSpec draft);
     string ValidateAndNormalize(string architectureSpecJson);

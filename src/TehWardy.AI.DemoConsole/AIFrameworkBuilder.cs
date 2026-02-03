@@ -46,6 +46,7 @@ internal static class AIFrameworkBuilder
             // Configure Runbook Step Handlers
             aiProviderConfiguration.WithRunbookStepHandlers(stepHandlingConfiguration =>
             {
+                stepHandlingConfiguration.AddExecutionStepHandler("execute");
                 stepHandlingConfiguration.AddReasoningStepHandler("reason");
                 stepHandlingConfiguration.AddToolCallingStepHandler("toolcall");
                 stepHandlingConfiguration.AddRespondingStepHandler("respond");

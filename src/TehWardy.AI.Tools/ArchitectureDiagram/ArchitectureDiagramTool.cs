@@ -5,7 +5,8 @@ using TehWardy.AI.Tools.Standard.Models;
 namespace TehWardy.AI.Tools.ArchitectureDiagram;
 
 internal class ArchitectureDiagramTool(
-    IArchitectureDiagramCompilerOrchestrationService architectureDiagramCompilerOrchestrationService)
+    IArchitectureDiagramCompilerOrchestrationService architectureDiagramCompilerOrchestrationService) 
+        : IArchitectureDiagramTool
 {
     public (ArchitectureSpec, DiagramValidationResult) ParseDiagram(string diagramJson) =>
         architectureDiagramCompilerOrchestrationService.ValidateAndCompile(diagramJson);

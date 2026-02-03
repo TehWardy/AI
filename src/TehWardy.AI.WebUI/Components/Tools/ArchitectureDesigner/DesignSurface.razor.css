@@ -32,14 +32,7 @@
     fill: none;
     stroke-width: 2;
     opacity: 0.9;
-}
-
-.edge-inprocess {
     stroke: rgba(140, 200, 255, 0.9);
-}
-
-.edge-external {
-    stroke: rgba(160, 255, 160, 0.9);
 }
 
 .edge-arrow {

@@ -62,21 +62,20 @@ internal class AgenticConversationCoordinationService(
         IAsyncEnumerable<Token> response = runbookOrchestrationService
             .ExecuteRunbookOrchestrationRequestAsync(runbookOrchestrationRequest);
 
-        bool firstToken = true;
+        bool firstResponseToken = true;
         bool potentialToolStateUpate = false;
 
         StringBuilder stateBuilder = new();
 
         await foreach (var token in response)
         {
-            if (firstToken)
+            if (firstResponseToken && token.Content is not null)
             {
-                firstToken = false;
+                firstResponseToken = false;
 
                 string trimmedContent = token.Content.TrimStart();
 
-                potentialToolStateUpate = 
-                    trimmedContent.StartsWith("`") || trimmedContent.StartsWith("{");
+                potentialToolStateUpate = trimmedContent.StartsWith("{");
             }
 
             if(potentialToolStateUpate)
@@ -93,5 +92,8 @@ internal class AgenticConversationCoordinationService(
                 Content = stateBuilder.ToString()
             };
         }
+
+        await agenticConversationContextOrchestrationService
+            .SaveConversationContextAsync(context);
     }
 }

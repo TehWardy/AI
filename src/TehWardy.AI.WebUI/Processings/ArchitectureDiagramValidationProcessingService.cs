@@ -26,12 +26,12 @@ public sealed class ArchitectureDiagramValidationProcessingService
         var nodes = diagram.Nodes;
         var edges = diagram.Edges ?? new List<DiagramEdge>();
 
-        var nodeMap = nodes.ToDictionary(n => n.Id);
+        var nodeMap = nodes.ToDictionary(n => n.Name);
 
-        var outgoing = edges.GroupBy(e => e.FromNodeId)
+        var outgoing = edges.GroupBy(e => e.FromNodeName)
             .ToDictionary(g => g.Key, g => g.ToList());
 
-        var incoming = edges.GroupBy(e => e.ToNodeId)
+        var incoming = edges.GroupBy(e => e.ToNodeName)
             .ToDictionary(g => g.Key, g => g.ToList());
 
         ValidateNoCycles(nodes, outgoing, result);
@@ -43,17 +43,17 @@ public sealed class ArchitectureDiagramValidationProcessingService
 
     private static void ValidateNoCycles(
         IList<DiagramNode> nodes,
-        IDictionary<Guid, List<DiagramEdge>> outgoing,
+        IDictionary<string, List<DiagramEdge>> outgoing,
         DiagramValidationResult result)
     {
-        var visited = new HashSet<Guid>();
-        var stack = new HashSet<Guid>();
+        var visited = new HashSet<string>();
+        var stack = new HashSet<string>();
 
         foreach (var node in nodes)
         {
-            if (!visited.Contains(node.Id))
+            if (!visited.Contains(node.Name))
             {
-                if (HasCycle(node.Id, outgoing, visited, stack))
+                if (HasCycle(node.Name, outgoing, visited, stack))
                 {
                     Add(result, "DIA020", DiagramDiagnosticSeverity.Error,
                         "Diagram contains a cyclic dependency.");
@@ -64,19 +64,19 @@ public sealed class ArchitectureDiagramValidationProcessingService
     }
 
     private static bool HasCycle(
-        Guid nodeId,
-        IDictionary<Guid, List<DiagramEdge>> outgoing,
-        HashSet<Guid> visited,
-        HashSet<Guid> stack)
+        string nodeName,
+        IDictionary<string, List<DiagramEdge>> outgoing,
+        HashSet<string> visited,
+        HashSet<string> stack)
     {
-        visited.Add(nodeId);
-        stack.Add(nodeId);
+        visited.Add(nodeName);
+        stack.Add(nodeName);
 
-        if (outgoing.TryGetValue(nodeId, out var edges))
+        if (outgoing.TryGetValue(nodeName, out var edges))
         {
             foreach (var edge in edges)
             {
-                var next = edge.ToNodeId;
+                var next = edge.ToNodeName;
 
                 if (!visited.Contains(next) &&
                     HasCycle(next, outgoing, visited, stack))
@@ -87,20 +87,20 @@ public sealed class ArchitectureDiagramValidationProcessingService
             }
         }
 
-        stack.Remove(nodeId);
+        stack.Remove(nodeName);
         return false;
     }
 
     private static void ValidateNodeKinds(
         IList<DiagramNode> nodes,
-        IDictionary<Guid, List<DiagramEdge>> outgoing,
-        IDictionary<Guid, List<DiagramEdge>> incoming,
+        IDictionary<string, List<DiagramEdge>> outgoing,
+        IDictionary<string, List<DiagramEdge>> incoming,
         DiagramValidationResult result)
     {
         foreach (var node in nodes)
         {
-            outgoing.TryGetValue(node.Id, out var outEdges);
-            incoming.TryGetValue(node.Id, out var inEdges);
+            outgoing.TryGetValue(node.Name, out var outEdges);
+            incoming.TryGetValue(node.Name, out var inEdges);
 
             outEdges ??= new List<DiagramEdge>();
             inEdges ??= new List<DiagramEdge>();
@@ -111,7 +111,7 @@ public sealed class ArchitectureDiagramValidationProcessingService
                 {
                     Add(result, "DIA030", DiagramDiagnosticSeverity.Error,
                         "Model nodes must not have dependencies.",
-                        nodeId: node.Id);
+                        nodeName: node.Name);
                 }
             }
 
@@ -121,7 +121,7 @@ public sealed class ArchitectureDiagramValidationProcessingService
                 {
                     Add(result, "DIA031", DiagramDiagnosticSeverity.Error,
                         "External nodes must not have outgoing dependencies.",
-                        nodeId: node.Id);
+                        nodeName: node.Name);
                 }
             }
         }
@@ -129,14 +129,14 @@ public sealed class ArchitectureDiagramValidationProcessingService
 
     private static void ValidateRoles(
         IList<DiagramNode> nodes,
-        IDictionary<Guid, List<DiagramEdge>> outgoing,
-        IDictionary<Guid, List<DiagramEdge>> incoming,
+        IDictionary<string, List<DiagramEdge>> outgoing,
+        IDictionary<string, List<DiagramEdge>> incoming,
         DiagramValidationResult result)
     {
         foreach (var node in nodes.Where(n => n.Kind == DiagramNodeKind.Component))
         {
-            outgoing.TryGetValue(node.Id, out var outEdges);
-            incoming.TryGetValue(node.Id, out var inEdges);
+            outgoing.TryGetValue(node.Name, out var outEdges);
+            incoming.TryGetValue(node.Name, out var inEdges);
 
             outEdges ??= new List<DiagramEdge>();
             inEdges ??= new List<DiagramEdge>();
@@ -152,7 +152,7 @@ public sealed class ArchitectureDiagramValidationProcessingService
                     {
                         Add(result, "DIA040", DiagramDiagnosticSeverity.Error,
                             "Orchestration component must have 1 to 3 outgoing dependencies.",
-                            nodeId: node.Id);
+                            nodeName: node.Name);
                     }
                     break;
 
@@ -166,7 +166,7 @@ public sealed class ArchitectureDiagramValidationProcessingService
 
                     var targetIsExternal = outEdges.All(e =>
                     {
-                        var target = nodes.First(n => n.Id == e.ToNodeId);
+                        var target = nodes.First(n => n.Name == e.ToNodeName);
                         return target.Kind == DiagramNodeKind.External;
                     });
 
@@ -174,7 +174,7 @@ public sealed class ArchitectureDiagramValidationProcessingService
                     {
                         Add(result, "DIA041", DiagramDiagnosticSeverity.Error,
                             "Broker must only depend on External nodes.",
-                            nodeId: node.Id);
+                            nodeName: node.Name);
                     }
                     break;
             }
@@ -191,7 +191,7 @@ public sealed class ArchitectureDiagramValidationProcessingService
         {
             Add(result, "DIA042", DiagramDiagnosticSeverity.Error,
                 $"Component '{node.Name}' must have exactly {expectedCount} outgoing dependency.",
-                nodeId: node.Id);
+                nodeName: node.Name);
         }
     }
 
@@ -200,16 +200,16 @@ public sealed class ArchitectureDiagramValidationProcessingService
         string code,
         DiagramDiagnosticSeverity severity,
         string message,
-        Guid? nodeId = null,
-        Guid? edgeId = null)
+        string nodeName = null,
+        string edgeName = null)
     {
         result.Diagnostics.Add(new DiagramDiagnostic
         {
             Code = code,
             Severity = severity,
             Message = message,
-            NodeId = nodeId,
-            EdgeId = edgeId
+            NodeName = nodeName,
+            EdgeName = edgeName
         });
     }
 }

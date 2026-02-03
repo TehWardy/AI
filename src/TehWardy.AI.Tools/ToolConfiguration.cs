@@ -1,4 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using TehWardy.AI.Tools.ArchitectureDiagram;
+using TehWardy.AI.Tools.ArchitectureDiagram.Orchestrations;
+using TehWardy.AI.Tools.ArchitectureDiagram.Processings;
 using TehWardy.AI.Tools.DotNet;
 using TehWardy.AI.Tools.DotNet.Brokers;
 using TehWardy.AI.Tools.DotNet.Foundations;
@@ -58,9 +61,30 @@ public class ToolConfiguration
         services.AddTransient<IDotNetProcessBroker, DotNetProcessBroker>();
     }
 
+    public void AddArchitectureDiagramTool()
+    {
+        services.AddKeyedTransient<object, ArchitectureDiagramTool>("ArchitectureDigram");
+
+        services.AddTransient<IArchitectureDiagramTool, ArchitectureDiagramTool>();
+
+        services.AddTransient<
+            IArchitectureDiagramCompilerOrchestrationService,
+            ArchitectureDiagramCompilerOrchestrationService>();
+
+        services.AddTransient<
+            IArchitectureDiagramCompilerProcessingService,
+            ArchitectureDiagramCompilerProcessingService>();
+
+        services.AddTransient<
+            IArchitectureDiagramValidationProcessingService,
+            ArchitectureDiagramValidationProcessingService>();
+    }
+
     public void AddStandardArchitectureTool()
     {
         services.AddKeyedTransient<object, StandardArchitectureTool>("StandardArchitecture");
+
+        services.AddTransient<IStandardArchitectureTool, StandardArchitectureTool>();
 
         services.AddTransient<
             IArchitectureSpecificationOrchestrationService,
