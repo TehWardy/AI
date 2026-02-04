@@ -1,0 +1,111 @@
+﻿@using TehWardy.AI.WebUI.Models.Tools.ArchitectureDesigner
+
+@{
+    var rectComputed = ComputedLayout.Nodes.TryGetValue(Node.Name, out var rect);
+    var methods = Node.Methods ?? Array.Empty<DiagramMethod>();
+}
+
+@if (!rectComputed)
+{
+    @* nothing *@
+}
+else if (Node.Role == DiagramComponentRole.External)
+{
+    <!-- Cloud -->
+    <g transform="translate(@rect.X @rect.Y)" class="node node-external">
+        <path d="@BuildCloudPath(rect.W, rect.H)" class="cloud-shape"></path>
+        <svg:text x="@(rect.W / 2)" y="@(rect.H / 2)"
+                  class="cloud-title"
+                  text-anchor="middle"
+                  dominant-baseline="middle">
+            @Node.Name
+        </svg:text>
+    </g>
+}
+else
+{
+    <!-- Box node -->
+    <g transform="translate(@rect.X @rect.Y)" class="@GetNodeCss(Node)">
+        <rect width="@rect.W" height="@rect.H" rx="12" ry="12" class="component-outer"></rect>
+        <rect width="@rect.W" height="@HeaderH" rx="12" ry="12" class="component-header"></rect>
+        <rect y="@(@HeaderH - 12)" width="@rect.W" height="12" class="component-header"></rect>
+        <svg:text x="14" y="10" class="component-title" dominant-baseline="hanging">@Node.Name</svg:text>
+
+        @if (Node.Role == DiagramComponentRole.Model)
+        {
+            <!-- Properties -->
+            var props = Node.Properties ?? Array.Empty<DiagramProperty>();
+
+            <g transform="translate(@Padding @(HeaderH + Padding))">
+                <rect width="@(rect.W - 2 * Padding)"
+                      height="@(((rect.H - HeaderH) / props.Count) - Padding - Padding)"
+                      rx="10" ry="10"
+                      class="props-outer"></rect>
+
+                <svg:text x="12" y="10" class="props-label" dominant-baseline="hanging">
+                    Properties
+                </svg:text>
+
+                @{
+                    double yLine = 28;
+                    foreach (var p in props)
+                    {
+                        var req = p.Required ? "" : "?";
+                        <svg:text x="12" y="@yLine" class="props-line" dominant-baseline="hanging">
+                            @p.Type @p.Name @req
+                        </svg:text>
+                        yLine += LineH;
+                    }
+                }
+            </g>
+        }
+        else
+        {
+            <!-- Methods -->
+            double yCursor = HeaderH + Padding;
+
+            foreach (var m in methods)
+            {
+                var inputs = m.Inputs ?? Array.Empty<DiagramParameter>();
+
+                <g transform="translate(@Padding @yCursor)">
+                    <rect width="@(rect.W - 2 * Padding)"
+                          height="@(((rect.H - HeaderH) / methods.Count) - Padding - Padding)"
+                          rx="10" ry="10"
+                          class="method-outer"></rect>
+
+                    @{
+                        const double textX = 12;
+                        double lineY = MethodTopPad;
+
+                        <svg:text x="@textX" y="@lineY" class="method-label" dominant-baseline="hanging">
+                            Method
+                        </svg:text>
+
+                        lineY += MethodLabelBlockH;
+
+                        foreach (var p in inputs)
+                        {
+                            <svg:text x="@textX" y="@lineY" class="method-line" dominant-baseline="hanging">
+                                Input: @p.Type @p.Name
+                            </svg:text>
+                            lineY += LineH;
+                        }
+
+                        <svg:text x="@textX" y="@lineY" class="method-line" dominant-baseline="hanging">
+                            Name: @m.Name
+                        </svg:text>
+
+                        lineY += LineH;
+
+                        <svg:text x="@textX" y="@lineY" class="method-line" dominant-baseline="hanging">
+                            Output: @m.OutputType
+                        </svg:text>
+                    }
+                </g>
+
+                yCursor += (((rect.H - HeaderH) / methods.Count) - Padding - Padding) + MethodGap;
+            }
+        }
+    </g>
+}

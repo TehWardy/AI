@@ -7,6 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Components\Tools\ArchitectureDesigner\DiagramNode.razor.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Components\Tools\ArchitectureDesigner\DiagramNodeComponent.razor.cs" />
     <Content Include="Components\Tools\ToolRenderer.razor.cs" />
   </ItemGroup>
 

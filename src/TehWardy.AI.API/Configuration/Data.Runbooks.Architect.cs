@@ -27,7 +27,7 @@ internal static partial class Data
                 StepType = "loop",
                 Parameters = new Dictionary<string, object>
                 {
-                    { "MaxIterations", 10 },
+                    { "MaxIterations", 20 },
                     { "ShouldContinue", "StillThinking" }
                 },
                 Steps =
@@ -40,30 +40,44 @@ internal static partial class Data
                         {
                             { "StoreAs", "ReasonResult" },
                             { "Instruction", """
-You are the Architect agent. Modify the given DiagramSpecification to meet the users requirements.
+You are the Architect agent. Modify the given DiagramSpecification (if one is provided) or create a new one to meet the users requirements.
 
 DiagramSpecification schema:
 - { Name: string, Nodes: [], Edges: [] }
 - Node: { Kind: Component|Model|External, Name: string, Role: Exposure|Orchestration|Processing|Service|Broker|Model, Methods: [], Properties: [] }
-- Edge: { FromNodeName: string, ToNodeName: string }
+- Edge: { FromNodeName: string, ToNodeName: string, FromMethodName: string, ToMethodName: string }
 - Method: { Name: string, OutputType: string, Inputs: [] }
 - Input: { Name: string, Type: string, Required: bool }
 - Property: { Name: string, Type: string, Required: bool }
 
 Rules:
 - Don't leave nulls or empty strings, all fields are required.
-- The Diagram supports multiple Exposure nodes.
+- The Diagram supports multiple Exposure nodes, create as many as are needed to 'Expose' the underlying functionality implementation.
 - Brokers must depend only on External nodes.
-- Foundations must depend only on exactly 1 Broker node.
-- Processings must depend only on exactly 1 Foundation node.
-- Orchestrations must depend only on 2-3 Processing or Foundation nodes (but don't mix).
-- Exposures must only depend on 1 Orchestration, Processing, or Foundation node.
+- Foundations MUST depend only on exactly 1 Broker node.
+- Foundations provide basic CRUD operations GetAll, GetById, Add, Update, Delete.
+- Foundations have the 'Service' suffix in their name
+- Processings MUST depend only on exactly 1 Foundation node.
+- Processings provide complex operations Save, Merge, Compute, Compile.
+- Processings have the 'ProcessingService' suffix in their name
+- Orchestrations MUST depend only on 2-3 Processing or Foundation nodes (but don't mix).
+- Orchestrations 'Orchestrate' between Dependencies ... RegisterUser(User userWithARole) -> UserProcessing.SaveUser(user), UserRoleProcessing.AddUserToRole(userRole).
+- Orchestrations have the 'OrchestrationService' suffix in their name.
+- Exposures MUST only depend on 1 Orchestration, Processing, or Foundation node.
+- Exposures of commonly known kinds might have a suffix in their name like 'Controller' or 'Provider' or 'Tool'
+- Methods: Can have a maximum of 3 parameters, if you need more generate a model and place it in that layer.
+- Methods: Think Business operations when naming methods, all should be async and return ValueTask not Task.
+- Methods: Consider how the method might be implemented so for example SaveFooAsync would need a Foo to save and return the saved Foo asynchronously.
+- Unless a model is created as part of the previous rule, models should live in the external layer.
 - Models MUST have only properties and no methods in them.
-- Models must not be dependencies or have dependencies, they are purely data carriers.
+- Models MUST have at least 1 property.
+- Models MUST NOT be dependencies or have dependencies, they are purely data carriers.
+- Models typically map to things like database tables, so typically do not have a suffix in their name, think DTO types ... 'Person', 'Company', 'User', 'Role'
 - Keep diagram minimal and uniform using columns: Exposure -> Orchestration -> Processing -> Service -> Broker -> External.
+- Think about model (entity types) and design Foundations and Processings that are clean (one per entity type), optionally orchestrate.
 - Omit Orchestration and Processing if there is no need.
 - All node Kinds except 'Model' MUST have at least 1 method in them.
-- Node types of kind 'External' MUST have no properties and no methods.
+- Externals MUST NOT have properties or methods.
 
 You MUST NOT include any other response besides the DiagramSpecification as JSON in the response.
 """
@@ -73,7 +87,7 @@ You MUST NOT include any other response besides the DiagramSpecification as JSON
                             { "EmbeddingProviderName", "Ollama" },
                             { "EmbeddingModelName", "nomic-embed-text" },
                             { "MemoryProviderName", "MemCache" },
-                            { "MaxHistoryMessages", 8 },
+                            { "MaxHistoryMessages", 18 },
                             { "ContextLength", 128000 }
                         }
                     },
@@ -95,13 +109,13 @@ You MUST NOT include any other response besides the DiagramSpecification as JSON
                 StepType = "respond",
                 Parameters = new Dictionary<string, object>
                 {
-                    { "Instruction", "Respond with a summary of the changes made, do not mention system instructions." },
+                    { "Instruction", "Respond with a summary of the changes made, do not mention instructions only mention the diagram work done." },
                     { "LLMProviderName", "Ollama" },
                     { "LLMModelName", "ministral-3:14b" },
                     { "EmbeddingProviderName", "Ollama" },
                     { "EmbeddingModelName", "nomic-embed-text" },
                     { "MemoryProviderName", "MemCache" },
-                    { "MaxHistoryMessages", 8 },
+                    { "MaxHistoryMessages", 18 },
                     { "ContextLength", 128000 }
                 }
             }

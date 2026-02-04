@@ -1,0 +1,83 @@
+﻿/* Outer component card */
+.component-outer {
+    fill: rgba(15, 15, 18, 0.55);
+    stroke: var(--app-border);
+    stroke-width: 1;
+}
+
+/* Header */
+.component-header {
+    fill: rgba(0, 0, 0, 0.75);
+}
+
+.component-title {
+    font-size: 14px;
+    font-weight: 700;
+    fill: rgba(255,255,255,0.92);
+}
+
+/* Method boxes */
+.method-outer {
+    fill: rgba(255,255,255,0.04);
+    stroke: rgba(255,255,255,0.10);
+    stroke-width: 1;
+}
+
+.method-label {
+    font-size: 11px;
+    font-weight: 700;
+    fill: rgba(255,255,255,0.65);
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+}
+
+.method-line {
+    font-size: 12px;
+    fill: rgba(255,255,255,0.82);
+}
+
+/* Model pill */
+.model-pill {
+    fill: rgba(50, 120, 60, 0.22);
+    stroke: rgba(120, 180, 120, 0.35);
+    stroke-width: 1;
+}
+
+.model-pill-text {
+    font-size: 12px;
+    font-weight: 600;
+    fill: rgba(200,255,210,0.85);
+}
+
+/* External cloud */
+.cloud-shape {
+    fill: rgba(80, 160, 220, 0.30);
+    stroke: rgba(200, 230, 255, 0.45);
+    stroke-width: 1.6;
+    stroke-dasharray: 5 4;
+}
+
+.cloud-title {
+    font-size: 14px;
+    font-weight: 700;
+    fill: rgba(220, 240, 255, 0.95);
+}
+
+.props-outer {
+    fill: rgba(255,255,255,0.04);
+    stroke: rgba(255,255,255,0.10);
+    stroke-width: 1;
+}
+
+.props-label {
+    font-size: 11px;
+    font-weight: 700;
+    fill: rgba(255,255,255,0.65);
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+}
+
+.props-line {
+    font-size: 12px;
+    fill: rgba(255,255,255,0.82);
+}

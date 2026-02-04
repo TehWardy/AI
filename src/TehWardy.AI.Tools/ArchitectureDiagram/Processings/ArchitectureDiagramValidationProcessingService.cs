@@ -148,7 +148,12 @@ public sealed class ArchitectureDiagramValidationProcessingService
                     break;
 
                 case DiagramComponentRole.Orchestration:
-                    if (outEdges.Count < 2 || outEdges.Count > 3)
+                    int connectedComponentCount = outEdges
+                        .Select(e => e.ToNodeName)
+                        .Distinct()
+                        .Count();
+
+                    if (connectedComponentCount < 2 || connectedComponentCount > 3)
                     {
                         Add(result, "DIA040", DiagramDiagnosticSeverity.Error,
                             "Orchestration component must have 2 to 3 outgoing dependencies.",
@@ -190,7 +195,12 @@ public sealed class ArchitectureDiagramValidationProcessingService
         int expectedCount,
         DiagramValidationResult result)
     {
-        if (edges.Count != expectedCount)
+        int connectedComponentCount = edges
+            .Select(e => e.ToNodeName)
+            .Distinct()
+            .Count();
+
+        if (connectedComponentCount != expectedCount)
         {
             Add(result, "DIA042", DiagramDiagnosticSeverity.Error,
                 $"Component '{node.Name}' must have exactly {expectedCount} outgoing dependency.",

@@ -19,8 +19,8 @@ public partial class Welcome : ComponentBase
 
     private const string SuggestionCms =
         "Today I'd like to build a content management system. " +
-        "Start by proposing an architecture based on common CMS types (pages, with content, users with roles, and link them up." +
-        "Model the architecture for the baseline 'CRUD' functions from per type exposure points. " +
+        "Start by proposing an architecture based on common CMS types (pages, with content, users with roles, and link them up with join types." +
+        "Model the architecture for the baseline 'CRUD' functions with per type exposure points. " +
         "The bottom of the dependency stack should store the data in a SQL database.";
 
     private const string SuggestionArchitecture =

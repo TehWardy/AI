@@ -1,10 +1,15 @@
 ﻿@using TehWardy.AI.WebUI.Models.Tools.ArchitectureDesigner
-@using TehWardy.AI.WebUI.Components.Tools.ArchitectureDesigner
 
-<div class="designer">
+<div class="designer"
+     tabindex="0"
+     @onwheel="OnWheel"
+     @onmousedown="OnMouseDown"
+     @onmousemove="OnMouseMove"
+     @onmouseup="OnMouseUp"
+     @onmouseleave="OnMouseUp">
+
     <svg class="designer-svg"
          xmlns="http://www.w3.org/2000/svg"
-         xmlns:svg="http://www.w3.org/2000/svg"
          viewBox="0 0 @ComputedLayout.Width @ComputedLayout.Height"
          preserveAspectRatio="xMinYMin meet">
 
@@ -14,44 +19,55 @@
             </marker>
         </defs>
 
-        <!-- Edges -->
-        @foreach (var edge in Diagram.Edges)
-        {
-            if (!ComputedLayout.Nodes.TryGetValue(edge.FromNodeName, out var from) ||
-            !ComputedLayout.Nodes.TryGetValue(edge.ToNodeName, out var to))
-            {
-                continue;
+        <g transform="translate(@PanX @PanY) scale(@Zoom)">
+
+            @{
+                var nodes = Diagram.Nodes ?? Array.Empty<DiagramNode>();
+                var edges = Diagram.Edges ?? Array.Empty<DiagramEdge>();
+
+                var nodeMap = nodes.ToDictionary(n => n.Name, StringComparer.Ordinal);
+                var anchors = BuildAnchors(nodeMap);
             }
 
-            var path = BuildElbowPath(from, to);
-
-            <path d="@path"
-                  class="edge"
-                  marker-end="url(#arrow)" />
-        }
-
-        <!-- Nodes -->
-        @foreach (var node in Diagram.Nodes)
-        {
-            if (!ComputedLayout.Nodes.TryGetValue(node.Name, out var rect))
+            <!-- NODES -->
+            @foreach (var node in nodes)
             {
-                continue;
+                <DiagramNodeComponent ComputedLayout="@ComputedLayout"
+                                      Node="@node"
+                                      HeaderH="@HeaderH"
+                                      Padding="@Padding"
+                                      MethodGap="@MethodGap"
+                                      LineH="@LineH"
+                                      MethodTopPad="@MethodTopPad"
+                                      MethodBottomPad="@MethodBottomPad"
+                                      MethodLabelBlockH="@MethodLabelBlockH" />
+
             }
 
-            <g transform="translate(@rect.X @rect.Y)" class="@GetNodeCss(node)">
-                <rect width="@rect.W" height="@rect.H" rx="12" ry="12" class="node-rect"></rect>
-
-                <svg:text x="14" y="28" class="node-title">@node.Name</svg:text>
-
-                @if (node.Kind == DiagramNodeKind.Component)
+            <!-- EDGES (method-to-method) -->
+            @foreach (var edge in edges)
+            {
+                if (!nodeMap.TryGetValue(edge.FromNodeName, out var fromNode) ||
+                !nodeMap.TryGetValue(edge.ToNodeName, out var toNode))
                 {
-                    <svg:text x="14" y="48" class="node-subtitle">@node.Role</svg:text>
+                    continue;
                 }
-                else if (node.Kind == DiagramNodeKind.External)
-                {
-                    <svg:text x="14" y="48" class="node-subtitle">External</svg:text>
-                }
-            </g>
-        }
+
+                var fromMethod = ResolveFromMethodName(fromNode, edge);
+                var toMethod = ResolveToMethodName(toNode, edge);
+
+                var fromKey = AnchorKey(edge.FromNodeName, fromMethod, AnchorSide.Right);
+                var toKey = AnchorKey(edge.ToNodeName, toMethod, AnchorSide.Left);
+
+                // Fallback: if method anchor missing (e.g. node has no methods), use node-center anchors
+                // If either still invalid (missing layout), skip
+                if (!anchors.TryGetValue(fromKey, out Anchor a) || !anchors.TryGetValue(toKey, out Anchor b))
+                    continue;
+
+                var path = BuildElbowPath(a.X - Padding, a.Y, b.X + Padding, b.Y);
+
+                <path d="@path" class="edge" marker-end="url(#arrow)" />
+            }
+        </g>
     </svg>
 </div>

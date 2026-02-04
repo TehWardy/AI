@@ -74,4 +74,6 @@ public sealed class DiagramEdge
 {
     public string FromNodeName { get; set; }
     public string ToNodeName { get; set; }
+    public string FromMethodName { get; set; }
+    public string ToMethodName { get; set; }
 }

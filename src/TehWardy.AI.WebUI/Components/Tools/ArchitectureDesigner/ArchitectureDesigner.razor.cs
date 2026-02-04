@@ -25,7 +25,7 @@ public partial class ArchitectureDesigner : ComponentBase, IToolComponent
         Diagram = JsonSerializer
             .Deserialize<DiagramSpecification>(newToolStateJson);
 
-        StateHasChanged();
+        AutoLayout();
     }
 
     protected override void OnInitialized()
@@ -43,5 +43,6 @@ public partial class ArchitectureDesigner : ComponentBase, IToolComponent
     private void AutoLayout()
     {
         Layout = AutoLayoutService.Compute(Diagram);
+        StateHasChanged();
     }
 }
